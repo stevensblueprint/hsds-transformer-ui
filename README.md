@@ -9,18 +9,32 @@
   />
 </picture>
 
-# Blueprint React + Vite Template
+# HSDS Transformer UI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The user interface for the HSDS Transformer allows you to upload a zip file containing your input and mapping files, run the transformation, and get back a zip file containing your transformed JSON files.
 
-## Getting Started Checklist
+How to set up the repository locally:
 
-Ensure you update the following items to customize the project:
+Clone the repository.  
+Install Node.js.  
+Run `npm ci` to install all the packages in the package.json.  
+To run the development server for the UI: `npm run dev`.  
 
-- [ ] **Favicon**: Update the `<link rel="icon">` in `index.html` and replace the logo in `src/assets/`.
-- [ ] **Project Title**: Update the `<title>` tag in `index.html`.
-- [ ] **Package Info**: Update `name`, `version`, and `description` in `package.json`.
-- [ ] **GitHub Secrets**: Configure your secretsin your GitHub repository:
+## Scripts
+
+Available `package.json` scripts:
+
+- `npm run dev`: Start the Vite dev server with HMR.
+- `npm run build`: Type-check with TypeScript project references and build for production.
+- `npm run lint`: Run ESLint across the codebase.
+- `npm run format:check`: Check formatting with Prettier without writing changes.
+- `npm run format:fix`: Format files with Prettier and write changes.
+- `npm run preview`: Preview the production build locally.
+
+
+## Deployment
+**Still to-do**
+- [ ] **GitHub Secrets**: Configure your secrets in your GitHub repository:
   - All `VITE_*` environment variables required by your application.
   - Update them in `.github/workflows/deploy.yml` so they are also built into the deployed site
 
@@ -48,14 +62,3 @@ This template includes two GitHub Actions workflows:
   - Authenticating with AWS using OIDC.
   - Synchronizing the build output (`dist/`) to an S3 bucket.
   - Invalidating the CloudFront distribution to ensure the latest version is served.
-
-## Scripts
-
-Available `package.json` scripts:
-
-- `npm run dev`: Start the Vite dev server with HMR.
-- `npm run build`: Type-check with TypeScript project references and build for production.
-- `npm run lint`: Run ESLint across the codebase.
-- `npm run format:check`: Check formatting with Prettier without writing changes.
-- `npm run format:fix`: Format files with Prettier and write changes.
-- `npm run preview`: Preview the production build locally.
