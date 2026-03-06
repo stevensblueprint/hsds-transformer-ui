@@ -110,9 +110,7 @@ function App() {
         try {
           const err = JSON.parse(responseBody) as { detail?: string };
           errorDetail = err.detail || responseBody;
-        } catch {
-          // Ignore parse errors, use raw response body
-        }
+        } catch {}
 
         const statusMessage = `Transform failed (${response.status} ${response.statusText})`;
         const message = errorDetail ? `${statusMessage}: ${errorDetail}` : statusMessage;
