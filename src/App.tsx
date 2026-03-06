@@ -66,7 +66,7 @@ function App() {
     const files = e.dataTransfer?.files;
     if (files && files.length > 0) {
       const droppedFile = files[0];
-      if (droppedFile.name.endsWith(".zip")) {
+      if (droppedFile.name.toLowerCase().endsWith(".zip")) {
         setFile(droppedFile);
         setError(null);
         clearDownloadUrl();
@@ -79,7 +79,7 @@ function App() {
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
-      if (selectedFile.name.endsWith(".zip")) {
+      if (selectedFile.name.toLowerCase().endsWith(".zip")) {
         setFile(selectedFile);
         setError(null);
         clearDownloadUrl();
@@ -110,8 +110,15 @@ function App() {
         let errorDetail = responseBody;
 
         try {
-          const err = JSON.parse(responseBody) as { detail?: string };
-          errorDetail = err.detail || responseBody;
+          const err = JSON.parse(responseBody) as { detail?: unknown };
+          if (err.detail) {
+            errorDetail =
+              typeof err.detail === "string"
+                ? err.detail
+                : JSON.stringify(err.detail);
+          } else {
+            errorDetail = JSON.stringify(err);
+          }
         } catch {
           // Ignore parse errors, use raw response body
         }
@@ -194,7 +201,12 @@ function App() {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={handleFileInputClick}
-          onKeyDown={(e) => e.key === "Enter" && handleFileInputClick()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+              e.preventDefault();
+              handleFileInputClick();
+            }
+          }}
         >
           {file ? (
             <div className="flex items-center justify-center gap-3">
