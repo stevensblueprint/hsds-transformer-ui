@@ -1,11 +1,13 @@
-import { useState, useEffect, type DragEvent, type ChangeEvent } from 'react';
-import './App.css';
+import { useState, useEffect, type DragEvent, type ChangeEvent } from "react";
+import "./App.css";
 
 // API URL configuration
 // In development: defaults to localhost:8000
 // In production: set VITE_API_URL environment variable to your AWS endpoint
 // If not set, falls back to /api (same-origin proxy)
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? "http://localhost:8000" : "/api");
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
@@ -28,9 +30,9 @@ function App() {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const response = await fetch(`${API_URL}/health`, { 
-          method: 'GET',
-          signal: AbortSignal.timeout(5000) 
+        const response = await fetch(`${API_URL}/health`, {
+          method: "GET",
+          signal: AbortSignal.timeout(5000),
         });
         setIsOnline(response.ok);
       } catch {
@@ -60,16 +62,16 @@ function App() {
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const files = e.dataTransfer?.files;
     if (files && files.length > 0) {
       const droppedFile = files[0];
-      if (droppedFile.name.endsWith('.zip')) {
+      if (droppedFile.name.toLowerCase().endsWith(".zip")) {
         setFile(droppedFile);
         setError(null);
         clearDownloadUrl();
       } else {
-        setError('Please drop a .zip file');
+        setError("Please drop a .zip file");
       }
     }
   };
@@ -77,30 +79,30 @@ function App() {
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
-      if (selectedFile.name.endsWith('.zip')) {
+      if (selectedFile.name.toLowerCase().endsWith(".zip")) {
         setFile(selectedFile);
         setError(null);
         clearDownloadUrl();
       } else {
-        setError('Please select a .zip file');
+        setError("Please select a .zip file");
       }
     }
   };
 
   const handleSubmit = async () => {
     if (!file) return;
-    
+
     setIsLoading(true);
     setError(null);
     clearDownloadUrl();
 
     try {
       const formData = new FormData();
-      formData.append('zip_file', file);
+      formData.append("zip_file", file);
 
       const response = await fetch(`${API_URL}/transform`, {
-        method: 'POST',
-        body: formData
+        method: "POST",
+        body: formData,
       });
 
       if (!response.ok) {
@@ -108,12 +110,23 @@ function App() {
         let errorDetail = responseBody;
 
         try {
-          const err = JSON.parse(responseBody) as { detail?: string };
-          errorDetail = err.detail || responseBody;
-        } catch {}
+          const err = JSON.parse(responseBody) as { detail?: unknown };
+          if (err.detail) {
+            errorDetail =
+              typeof err.detail === "string"
+                ? err.detail
+                : JSON.stringify(err.detail);
+          } else {
+            errorDetail = JSON.stringify(err);
+          }
+        } catch {
+          // Ignore parse errors, use raw response body
+        }
 
         const statusMessage = `Transform failed (${response.status} ${response.statusText})`;
-        const message = errorDetail ? `${statusMessage}: ${errorDetail}` : statusMessage;
+        const message = errorDetail
+          ? `${statusMessage}: ${errorDetail}`
+          : statusMessage;
         throw new Error(message);
       }
 
@@ -121,7 +134,7 @@ function App() {
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -129,8 +142,8 @@ function App() {
 
   const handleDownload = () => {
     if (!downloadUrl || !file) return;
-    
-    const a = document.createElement('a');
+
+    const a = document.createElement("a");
     a.href = downloadUrl;
     a.download = `transformed_${file.name}`;
     document.body.appendChild(a);
@@ -145,7 +158,7 @@ function App() {
   };
 
   const handleFileInputClick = () => {
-    document.getElementById('fileInput')?.click();
+    document.getElementById("fileInput")?.click();
   };
 
   return (
@@ -154,29 +167,33 @@ function App() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <h1 className="text-4xl font-bold text-gray-900">HSDS Transformer</h1>
+            <h1 className="text-4xl font-bold text-gray-900">
+              HSDS Transformer
+            </h1>
             {isOnline !== null && (
-              <span 
+              <span
                 className={`px-2 py-1 text-xs rounded-full ${
-                  isOnline 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'bg-red-100 text-red-700'
+                  isOnline
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
                 }`}
               >
-                {isOnline ? 'Connected' : 'Disconnected'}
+                {isOnline ? "Connected" : "Disconnected"}
               </span>
             )}
           </div>
           <p className="text-lg text-gray-600">
-            Transform your CSV data into HSDS JSON format. 
-            Drop a zip file containing your input CSVs and mapping files to get started.
+            Transform your CSV data into HSDS JSON format. Drop a zip file
+            containing your input CSVs and mapping files to get started.
           </p>
         </div>
 
         {/* File Drop Zone */}
         <div
           className={`bg-white rounded-lg shadow-sm border-2 border-dashed p-8 text-center transition-colors ${
-            isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+            isDragging
+              ? "border-blue-500 bg-blue-50"
+              : "border-gray-300 hover:border-gray-400"
           }`}
           role="button"
           tabIndex={0}
@@ -184,36 +201,76 @@ function App() {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={handleFileInputClick}
-          onKeyDown={(e) => e.key === 'Enter' && handleFileInputClick()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+              e.preventDefault();
+              handleFileInputClick();
+            }
+          }}
         >
           {file ? (
             <div className="flex items-center justify-center gap-3">
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              <svg
+                className="w-8 h-8 text-green-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
               <span className="text-gray-700 font-medium">{file.name}</span>
-              <button 
+              <button
                 className="text-gray-400 hover:text-gray-600 ml-2"
-                onClick={(e) => { e.stopPropagation(); handleReset(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReset();
+                }}
                 aria-label="Remove file"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
           ) : (
             <>
-              <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              <svg
+                className="w-12 h-12 text-gray-400 mx-auto mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
               </svg>
-              <p className="text-gray-600 mb-2">Drag and drop a .zip file here</p>
+              <p className="text-gray-600 mb-2">
+                Drag and drop a .zip file here
+              </p>
               <p className="text-gray-400 text-sm">or click to browse</p>
-              <input 
-                type="file" 
-                id="fileInput" 
-                accept=".zip" 
-                className="hidden" 
+              <input
+                type="file"
+                id="fileInput"
+                accept=".zip"
+                className="hidden"
                 onChange={handleFileSelect}
               />
             </>
@@ -230,13 +287,25 @@ function App() {
         {/* Download Button (Success) */}
         {downloadUrl && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-700 text-sm mb-3">Transformation complete!</p>
+            <p className="text-green-700 text-sm mb-3">
+              Transformation complete!
+            </p>
             <button
               onClick={handleDownload}
               className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
               </svg>
               Download Transformed Files
             </button>
@@ -252,16 +321,41 @@ function App() {
           >
             {isLoading ? (
               <>
-                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="w-5 h-5 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 Transforming...
               </>
             ) : (
               <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
                 </svg>
                 Transform
               </>

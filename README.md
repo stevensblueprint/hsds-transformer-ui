@@ -18,7 +18,7 @@ How to set up the repository locally:
 Clone the repository.  
 Install Node.js.  
 Run `npm ci` to install all the packages in the package.json.  
-To run the development server for the UI: `npm run dev`.  
+To run the development server for the UI: `npm run dev`.
 
 ## Scripts
 
@@ -31,9 +31,10 @@ Available `package.json` scripts:
 - `npm run format:fix`: Format files with Prettier and write changes.
 - `npm run preview`: Preview the production build locally.
 
-
 ## Deployment
+
 **Still to-do**
+
 - [ ] **GitHub Secrets**: Configure your secrets in your GitHub repository:
   - All `VITE_*` environment variables required by your application.
   - Update them in `.github/workflows/deploy.yml` so they are also built into the deployed site
