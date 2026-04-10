@@ -9,11 +9,79 @@ const API_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.DEV ? "http://localhost:8000" : "/api");
 
+const LOG_HEADER_CANDIDATES = [
+  "x-transformer-logs",
+  "x-transform-logs",
+  "x-log-output",
+  "x-logs",
+];
+
+const normalizeOutput = (value: unknown): string | null => {
+  if (value == null) return null;
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  if (Array.isArray(value)) {
+    const rows = value.map((item) => normalizeOutput(item)).filter(Boolean);
+    return rows.length > 0 ? rows.join("\n") : null;
+  }
+
+  if (typeof value === "object") {
+    return JSON.stringify(value, null, 2);
+  }
+
+  return String(value);
+};
+
+const decodeHeaderValue = (value: string): string => {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+};
+
+const extractLogOutput = (response: Response): string | null => {
+  for (const headerName of LOG_HEADER_CANDIDATES) {
+    const raw = response.headers.get(headerName);
+    if (!raw) continue;
+
+    const decoded = decodeHeaderValue(raw);
+    const normalized = normalizeOutput(decoded);
+    if (normalized) return normalized;
+  }
+
+  return null;
+};
+
+const parseErrorDetail = (responseBody: string): string | null => {
+  if (!responseBody) return null;
+
+  try {
+    const parsed = JSON.parse(responseBody) as Record<string, unknown>;
+
+    const detail =
+      parsed.detail ??
+      parsed.error ??
+      parsed.message ??
+      parsed.errors ??
+      parsed.logs;
+
+    return normalizeOutput(detail ?? parsed);
+  } catch {
+    return normalizeOutput(responseBody);
+  }
+};
+
 function App() {
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [logOutput, setLogOutput] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
 
@@ -69,6 +137,7 @@ function App() {
       if (droppedFile.name.toLowerCase().endsWith(".zip")) {
         setFile(droppedFile);
         setError(null);
+        setLogOutput(null);
         clearDownloadUrl();
       } else {
         setError("Please drop a .zip file");
@@ -82,6 +151,7 @@ function App() {
       if (selectedFile.name.toLowerCase().endsWith(".zip")) {
         setFile(selectedFile);
         setError(null);
+        setLogOutput(null);
         clearDownloadUrl();
       } else {
         setError("Please select a .zip file");
@@ -94,6 +164,7 @@ function App() {
 
     setIsLoading(true);
     setError(null);
+    setLogOutput(null);
     clearDownloadUrl();
 
     try {
@@ -107,27 +178,18 @@ function App() {
 
       if (!response.ok) {
         const responseBody = await response.text();
-        let errorDetail = responseBody;
-
-        try {
-          const err = JSON.parse(responseBody) as { detail?: unknown };
-          if (err.detail) {
-            errorDetail =
-              typeof err.detail === "string"
-                ? err.detail
-                : JSON.stringify(err.detail);
-          } else {
-            errorDetail = JSON.stringify(err);
-          }
-        } catch {
-          // Ignore parse errors, use raw response body
-        }
+        const errorDetail = parseErrorDetail(responseBody);
 
         const statusMessage = `Transform failed (${response.status} ${response.statusText})`;
         const message = errorDetail
           ? `${statusMessage}: ${errorDetail}`
           : statusMessage;
         throw new Error(message);
+      }
+
+      const logs = extractLogOutput(response);
+      if (logs) {
+        setLogOutput(logs);
       }
 
       const blob = await response.blob();
@@ -154,6 +216,7 @@ function App() {
   const handleReset = () => {
     setFile(null);
     clearDownloadUrl();
+    setLogOutput(null);
     setError(null);
   };
 
@@ -280,7 +343,9 @@ function App() {
         {/* Error Message */}
         {error && (
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm">{error}</p>
+            <p className="text-red-600 text-sm whitespace-pre-wrap break-words font-mono">
+              {error}
+            </p>
           </div>
         )}
 
@@ -309,6 +374,15 @@ function App() {
               </svg>
               Download Transformed Files
             </button>
+
+            <div className="mt-4 p-3 bg-white border border-green-100 rounded-md">
+              <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">
+                Transformer log output
+              </p>
+              <pre className="text-sm text-gray-700 whitespace-pre-wrap break-words font-mono">
+                {logOutput || "No log output returned by the API."}
+              </pre>
+            </div>
           </div>
         )}
 
