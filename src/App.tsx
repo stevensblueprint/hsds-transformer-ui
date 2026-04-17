@@ -1,4 +1,10 @@
-import { useState, useEffect, type DragEvent, type ChangeEvent } from "react";
+import {
+  useState,
+  useEffect,
+  type CSSProperties,
+  type DragEvent,
+  type ChangeEvent,
+} from "react";
 import "./App.css";
 
 // API URL configuration
@@ -9,6 +15,41 @@ const API_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.DEV ? "http://localhost:8000" : "/api");
 
+const CONFETTI_COLORS = [
+  "#f43f5e",
+  "#f59e0b",
+  "#22c55e",
+  "#3b82f6",
+  "#8b5cf6",
+  "#14b8a6",
+];
+const CONFETTI_COUNT = 40;
+
+const getConfettiPieceStyle = (
+  index: number,
+  burstId: number,
+): CSSProperties => {
+  const spread = (index / (CONFETTI_COUNT - 1)) * 100;
+  const jitter = ((index * 37 + burstId * 19) % 10) - 5;
+  const delayMs = (index % 8) * 45;
+  const durationMs = 1600 + ((index * 71 + burstId * 13) % 900);
+  const driftPx = ((index * 29 + burstId * 11) % 120) - 60;
+  const rotationDeg = (index * 47 + burstId * 31) % 360;
+  const widthPx = 6 + ((index * 17 + burstId * 7) % 7);
+  const heightPx = Math.max(4, Math.round(widthPx * 0.45));
+
+  return {
+    left: `${Math.max(0, Math.min(100, spread + jitter))}%`,
+    animationDelay: `${delayMs}ms`,
+    animationDuration: `${durationMs}ms`,
+    backgroundColor: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
+    width: `${widthPx}px`,
+    height: `${heightPx}px`,
+    "--confetti-drift": `${driftPx}px`,
+    "--confetti-rotation-start": `${rotationDeg}deg`,
+  } as CSSProperties;
+};
+
 function App() {
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -16,6 +57,8 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [confettiBurstId, setConfettiBurstId] = useState(0);
 
   // Cleanup download URL on unmount
   useEffect(() => {
@@ -41,6 +84,16 @@ function App() {
     };
     checkHealth();
   }, []);
+
+  useEffect(() => {
+    if (!showConfetti) return;
+
+    const timer = window.setTimeout(() => {
+      setShowConfetti(false);
+    }, 2600);
+
+    return () => window.clearTimeout(timer);
+  }, [showConfetti]);
 
   const clearDownloadUrl = () => {
     if (downloadUrl) {
@@ -133,6 +186,8 @@ function App() {
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
+      setConfettiBurstId((prev) => prev + 1);
+      setShowConfetti(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -163,6 +218,22 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+      {showConfetti && (
+        <div
+          className="confetti-overlay"
+          aria-hidden="true"
+          key={confettiBurstId}
+        >
+          {Array.from({ length: CONFETTI_COUNT }).map((_, index) => (
+            <span
+              key={`${confettiBurstId}-${index}`}
+              className="confetti-piece"
+              style={getConfettiPieceStyle(index, confettiBurstId)}
+            />
+          ))}
+        </div>
+      )}
+
       <div className="max-w-xl w-full">
         {/* Header */}
         <div className="text-center mb-8">
@@ -288,7 +359,7 @@ function App() {
         {downloadUrl && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-700 text-sm mb-3">
-              Transformation complete!
+              Transformation complete! 🎉
             </p>
             <button
               onClick={handleDownload}

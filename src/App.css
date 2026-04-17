@@ -5,3 +5,45 @@
     "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto",
     "Helvetica Neue", "Arial", sans-serif;
 }
+
+.confetti-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 30;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -10%;
+  border-radius: 2px;
+  opacity: 0;
+  animation-name: confetti-fall;
+  animation-timing-function: cubic-bezier(0.12, 0.8, 0.25, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -5vh, 0)
+      rotate(var(--confetti-rotation-start, 0deg));
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--confetti-drift, 0px), 110vh, 0)
+      rotate(calc(var(--confetti-rotation-start, 0deg) + 540deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece {
+    animation: none;
+  }
+}
