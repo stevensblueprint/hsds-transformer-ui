@@ -23,19 +23,38 @@ const CONFETTI_COLORS = [
   "#8b5cf6",
   "#14b8a6",
 ];
-const CONFETTI_COUNT = 40;
+const CONFETTI_COUNT = 140;
+const CONFETTI_MAX_DELAY_MS = 220;
+const CONFETTI_MIN_DURATION_MS = 2800;
+const CONFETTI_DURATION_VARIANCE_MS = 1200;
+const CONFETTI_HIDE_AFTER_MS =
+  CONFETTI_MAX_DELAY_MS +
+  CONFETTI_MIN_DURATION_MS +
+  CONFETTI_DURATION_VARIANCE_MS +
+  300;
+
+type ConfettiStyle = CSSProperties & {
+  "--confetti-drift": string;
+  "--confetti-start-y": string;
+  "--confetti-static-y": string;
+  "--confetti-rotation-start": string;
+};
 
 const getConfettiPieceStyle = (
   index: number,
   burstId: number,
-): CSSProperties => {
+): ConfettiStyle => {
   const spread = (index / (CONFETTI_COUNT - 1)) * 100;
-  const jitter = ((index * 37 + burstId * 19) % 10) - 5;
-  const delayMs = (index % 8) * 45;
-  const durationMs = 1600 + ((index * 71 + burstId * 13) % 900);
-  const driftPx = ((index * 29 + burstId * 11) % 120) - 60;
+  const jitter = ((index * 37 + burstId * 19) % 14) - 7;
+  const delayMs = (index * 47 + burstId * 29) % CONFETTI_MAX_DELAY_MS;
+  const durationMs =
+    CONFETTI_MIN_DURATION_MS +
+    ((index * 71 + burstId * 13) % CONFETTI_DURATION_VARIANCE_MS);
+  const driftPx = ((index * 29 + burstId * 11) % 180) - 90;
+  const startYVh = -((index * 31 + burstId * 17) % 28);
+  const staticYVh = 10 + ((index * 23 + burstId * 7) % 60);
   const rotationDeg = (index * 47 + burstId * 31) % 360;
-  const widthPx = 6 + ((index * 17 + burstId * 7) % 7);
+  const widthPx = 5 + ((index * 17 + burstId * 7) % 9);
   const heightPx = Math.max(4, Math.round(widthPx * 0.45));
 
   return {
@@ -46,8 +65,10 @@ const getConfettiPieceStyle = (
     width: `${widthPx}px`,
     height: `${heightPx}px`,
     "--confetti-drift": `${driftPx}px`,
+    "--confetti-start-y": `${startYVh}vh`,
+    "--confetti-static-y": `${staticYVh}vh`,
     "--confetti-rotation-start": `${rotationDeg}deg`,
-  } as CSSProperties;
+  };
 };
 
 function App() {
@@ -90,7 +111,7 @@ function App() {
 
     const timer = window.setTimeout(() => {
       setShowConfetti(false);
-    }, 2600);
+    }, CONFETTI_HIDE_AFTER_MS);
 
     return () => window.clearTimeout(timer);
   }, [showConfetti]);
