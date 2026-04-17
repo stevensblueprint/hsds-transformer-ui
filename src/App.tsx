@@ -36,7 +36,6 @@ const CONFETTI_HIDE_AFTER_MS =
 type ConfettiStyle = CSSProperties & {
   "--confetti-drift": string;
   "--confetti-start-y": string;
-  "--confetti-static-y": string;
   "--confetti-rotation-start": string;
 };
 
@@ -52,7 +51,6 @@ const getConfettiPieceStyle = (
     ((index * 71 + burstId * 13) % CONFETTI_DURATION_VARIANCE_MS);
   const driftPx = ((index * 29 + burstId * 11) % 180) - 90;
   const startYVh = -((index * 31 + burstId * 17) % 28);
-  const staticYVh = 10 + ((index * 23 + burstId * 7) % 60);
   const rotationDeg = (index * 47 + burstId * 31) % 360;
   const widthPx = 5 + ((index * 17 + burstId * 7) % 9);
   const heightPx = Math.max(4, Math.round(widthPx * 0.45));
@@ -66,7 +64,6 @@ const getConfettiPieceStyle = (
     height: `${heightPx}px`,
     "--confetti-drift": `${driftPx}px`,
     "--confetti-start-y": `${startYVh}vh`,
-    "--confetti-static-y": `${staticYVh}vh`,
     "--confetti-rotation-start": `${rotationDeg}deg`,
   };
 };

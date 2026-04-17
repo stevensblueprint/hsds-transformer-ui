@@ -50,14 +50,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .confetti-piece {
-    animation: none;
-    opacity: 0.95;
-    transform: translate3d(
-        var(--confetti-drift, 0px),
-        var(--confetti-static-y, 18vh),
-        0
-      )
-      rotate(var(--confetti-rotation-start, 0deg));
+  .confetti-overlay {
+    display: none;
   }
 }
