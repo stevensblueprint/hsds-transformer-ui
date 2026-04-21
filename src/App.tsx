@@ -183,9 +183,30 @@ function App() {
             )}
           </div>
           <p className="text-lg text-gray-600">
-            Transform your CSV data into HSDS JSON format. Drop a zip file
-            containing your input CSVs and mapping files to get started.
+            Transform your CSV data into HSDS JSON format. 
           </p>
+          <ol className="p-4 text-left text-md text-gray-600 list-decimal list-inside space-y-2">
+            <li>Export input files as CSVs</li>
+            <li>Create mapping files for the input files using the{" "}
+              <a 
+                href="https://docs.google.com/spreadsheets/d/1pE8kLsQlLfoGgRzWLNGZdPUmspjFaLSp2S65b-ds2E4/edit?usp=sharing" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-blue-600 underline hover:text-blue-800"
+              > 
+              mapping template
+              </a> 
+              {" "}as per the <a 
+                href="https://docs.google.com/document/d/1TEvuGkecCbyyGD8xI6ROholbTnlC-m260hQNx-BqP2w/edit?tab=t.rohtmfo1978" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-blue-600 underline hover:text-blue-800"
+              >
+              mapping documentation
+              </a>
+              </li>
+            <li>Create a zip file containing the input CSVs and mapping files and drag and drop below</li>
+          </ol>
         </div>
 
         {/* File Drop Zone */}
