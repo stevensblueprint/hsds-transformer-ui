@@ -8,6 +8,8 @@ import "./App.css";
 const API_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.DEV ? "http://localhost:8000" : "/api");
+const MAPPING_TEMPLATE_URL = "https://docs.google.com/spreadsheets/d/1pE8kLsQlLfoGgRzWLNGZdPUmspjFaLSp2S65b-ds2E4/edit?usp=sharing";
+const MAPPING_DOCS_URL = "https://docs.google.com/document/d/1TEvuGkecCbyyGD8xI6ROholbTnlC-m260hQNx-BqP2w/edit?tab=t.rohtmfo1978";
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
@@ -189,7 +191,7 @@ function App() {
             <li>Export input files as CSVs</li>
             <li>Create mapping files for the input files using the{" "}
               <a 
-                href="https://docs.google.com/spreadsheets/d/1pE8kLsQlLfoGgRzWLNGZdPUmspjFaLSp2S65b-ds2E4/edit?usp=sharing" 
+                href={MAPPING_TEMPLATE_URL} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-blue-600 underline hover:text-blue-800"
@@ -197,7 +199,7 @@ function App() {
               mapping template
               </a> 
               {" "}as per the <a 
-                href="https://docs.google.com/document/d/1TEvuGkecCbyyGD8xI6ROholbTnlC-m260hQNx-BqP2w/edit?tab=t.rohtmfo1978" 
+                href={MAPPING_DOCS_URL} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-blue-600 underline hover:text-blue-800"
