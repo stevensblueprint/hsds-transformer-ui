@@ -9,7 +9,7 @@ const API_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.DEV ? "http://localhost:8000" : "/api");
 const MAPPING_TEMPLATE_URL =
-  "https://docs.google.com/spreadsheets/d/1pE8kLsQlLfoGgRzWLNGZdPUmspjFaLSp2S65b-ds2E4/edit?usp=sharing";
+  "https://docs.google.com/spreadsheets/d/1zhYwVo1Lx2vQHSMQ71zkwVgB3RmWNnC-cuGa2qQqOew/edit?usp=sharing";
 const MAPPING_DOCS_URL =
   "https://docs.google.com/document/d/1TEvuGkecCbyyGD8xI6ROholbTnlC-m260hQNx-BqP2w/edit?tab=t.rohtmfo1978";
 
