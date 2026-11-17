@@ -214,3 +214,16 @@ describe("continuous real transformation lifecycle", () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:test-output");
   });
 });
+
+it("reinspection disposes a source editor before approving the newly inspected version", async () => {
+  const { result } = await ready();
+  act(() => result.current.setSourceEditing(true));
+  act(() => result.current.setView("intake"));
+  await act(async () => {
+    await result.current.inspect();
+  });
+  expect(result.current.sourceEditing).toBe(false);
+  act(() => result.current.approvePending());
+  act(() => result.current.approve());
+  expect(result.current.canRun).toBe(true);
+});

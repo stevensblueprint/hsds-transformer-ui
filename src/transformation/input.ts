@@ -1,6 +1,7 @@
 import { inspectZip, ZIP_LIMITS } from "../integration/zip";
 import { makeArchive, readArchive } from "./archive";
 import { parseCsv } from "./mapping";
+import { assertUniqueSourceFields } from "./sourceKeys";
 import type { InputFile, InputFormat, PreparedInput } from "./model";
 
 export const TEXT_INSPECTION_BYTES = 1024 * 1024;
@@ -87,7 +88,9 @@ async function inspectText(
     }
     if (format === "csv") {
       try {
-        parseCsv(text);
+        const rows = parseCsv(text, isMappingFile(file.name));
+        if (!isMappingFile(file.name))
+          assertUniqueSourceFields(rows[0] ?? [], file.name);
       } catch (cause) {
         throw new Error(
           `${file.name} contains malformed CSV. ${cause instanceof Error ? cause.message : "Correct the quoting before continuing."}`,
@@ -114,6 +117,10 @@ async function inspectText(
         throw new Error(
           `${file.name} must contain a non-empty JSON array of record objects for the existing transformer.`,
         );
+      if (!isMappingFile(file.name) && Array.isArray(value)) {
+        for (const row of value)
+          assertUniqueSourceFields(Object.keys(row), file.name);
+      }
     }
     inputs.push({ name: file.name, file, text });
   }

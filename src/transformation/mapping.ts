@@ -1,3 +1,8 @@
+import {
+  assertUniqueSourceFields,
+  normalizeSourceRecord,
+  trimBackendWhitespace,
+} from "./sourceKeys";
 import type {
   InputFile,
   InputFormat,
@@ -19,19 +24,19 @@ const object = (value: unknown): value is Record<string, unknown> =>
 const field = (value: unknown, label: string, required = false) => {
   if (value !== undefined && typeof value !== "string")
     throw new Error(`${label} must be text.`);
-  const text = (value as string | undefined)?.trim() ?? "";
+  const text = trimBackendWhitespace((value as string | undefined) ?? "");
   if (required && !text) throw new Error(`${label} is required.`);
   return text;
 };
 
 /** CSV reading only. Values remain literal text and never execute as formulas. */
-export function parseCsv(text: string): string[][] {
+export function parseCsv(text: string, stripBom = true): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let value = "";
   let quoted = false;
   let closed = false;
-  text = text.replace(/^\uFEFF/, "");
+  if (stripBom) text = text.replace(/^\uFEFF/, "");
   for (let index = 0; index < text.length; index++) {
     const char = text[index];
     if (quoted) {
@@ -86,7 +91,7 @@ function rowFromValues(
   values: unknown[],
 ): MappingRow {
   const inputPath = field(values[1], "Source field", true);
-  if (!inputPath.split(";").some((part) => part.trim()))
+  if (!inputPath.split(";").some((part) => trimBackendWhitespace(part)))
     throw new Error("Source field must include a field name.");
   return {
     id: `${filename}#${index}`,
@@ -148,10 +153,13 @@ function parseDocument(file: InputFile, format: InputFormat): MappingDocument {
         throw new Error(
           "CSV mappings need a header, a filter row (blank if unused), then mapping rows.",
         );
-      if (rows[1][0]?.trim() && rows[1][1]?.trim())
-        doc.filter = `${rows[1][0].trim()} = ${rows[1][1].trim()}`;
+      if (
+        trimBackendWhitespace(rows[1][0] ?? "") &&
+        trimBackendWhitespace(rows[1][1] ?? "")
+      )
+        doc.filter = `${trimBackendWhitespace(rows[1][0])} = ${trimBackendWhitespace(rows[1][1])}`;
       doc.rows = rows.slice(2).flatMap((row, index) => {
-        if (row.every((value) => !value.trim())) return [];
+        if (row.every((value) => !trimBackendWhitespace(value))) return [];
         field(row[4], "Custom transform");
         return [rowFromValues(file.name, index + 2, row)];
       });
@@ -206,11 +214,11 @@ export function reviseMapping(
       );
     const next: Record<string, unknown> = {
       ...entry,
-      input_path: changes.inputPath.trim(),
-      output_path: changes.outputPath.trim(),
+      input_path: trimBackendWhitespace(changes.inputPath),
+      output_path: trimBackendWhitespace(changes.outputPath),
     };
     for (const key of ["split", "strip"] as const) {
-      const value = changes[key]?.trim();
+      const value = trimBackendWhitespace(changes[key] ?? "");
       if (value) next[key] = value;
       else delete next[key];
     }
@@ -223,10 +231,10 @@ export function reviseMapping(
         "Mapping row is no longer current. Close the editor and inspect the current mapping.",
       );
     const next = [...rows[index]];
-    next[0] = changes.outputPath.trim();
-    next[1] = changes.inputPath.trim();
-    next[2] = changes.split?.trim() ?? "";
-    next[3] = changes.strip?.trim() ?? "";
+    next[0] = trimBackendWhitespace(changes.outputPath);
+    next[1] = trimBackendWhitespace(changes.inputPath);
+    next[2] = trimBackendWhitespace(changes.split ?? "");
+    next[3] = trimBackendWhitespace(changes.strip ?? "");
     rows[index] = next;
     text = serializeCsv(rows);
   }
@@ -302,12 +310,16 @@ export function sourceEvidence(
       if (source.name.toLowerCase().endsWith(".json")) {
         const value: unknown = JSON.parse(source.text);
         const first = Array.isArray(value) ? value[0] : value;
-        if (object(first)) record = first;
+        if (object(first)) record = normalizeSourceRecord(first, source.name);
       } else {
-        const rows = parseCsv(source.text);
+        const rows = parseCsv(source.text, false);
+        assertUniqueSourceFields(rows[0] ?? [], source.name);
         if (rows.length > 1)
           record = Object.fromEntries(
-            rows[0].map((name, index) => [name, rows[1][index]]),
+            rows[0].map((name, index) => [
+              trimBackendWhitespace(name),
+              rows[1][index],
+            ]),
           );
       }
       cached = { text: source.text, record };
@@ -319,7 +331,7 @@ export function sourceEvidence(
     return row.inputPath
       .split(";")
       .map((key) => {
-        key = key.trim();
+        key = trimBackendWhitespace(key);
         const value = Object.hasOwn(record ?? {}, key)
           ? record?.[key]
           : undefined;

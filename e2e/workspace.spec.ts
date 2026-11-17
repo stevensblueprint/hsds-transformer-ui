@@ -440,7 +440,38 @@ test("stop waiting and clearing discard late responses without claiming server c
 test("CSV and ZIP use the same picker and preserve literal source values", async ({
   page,
 }) => {
-  await mockSuccess(page);
+  const response = await outputZip("=1+1");
+  let posts = 0;
+  await page.route("**/transform", async (route) => {
+    posts++;
+    const form = await new Response(
+      new Uint8Array(route.request().postDataBuffer()!).buffer,
+      {
+        headers: { "content-type": route.request().headers()["content-type"] },
+      },
+    ).formData();
+    expect(form.get("input_format")).toBeNull();
+    const files = await readArchive(
+      form.get("zip_file") as File,
+      "csv",
+      new AbortController().signal,
+    );
+    expect(await files.find((file) => file.name === "orgs.csv")!.text()).toBe(
+      'ID,Name\n1,"=1+1"\n',
+    );
+    expect(
+      await files
+        .find((file) => file.name === "orgs_organization_mapping.csv")!
+        .text(),
+    ).toBe(
+      "output,input,split,strip,transform\n,,,,\nid,ID,,,\nname,Name,,,\n",
+    );
+    return route.fulfill({
+      status: 201,
+      contentType: "application/zip",
+      body: response,
+    });
+  });
   await page.goto("/");
   await picker(page).setInputFiles([
     {
@@ -452,7 +483,7 @@ test("CSV and ZIP use the same picker and preserve literal source values", async
       name: "orgs_organization_mapping.csv",
       mimeType: "text/csv",
       buffer: Buffer.from(
-        "output,input,split,strip,transform\nid,ID,,,\nname,Name,,,\n",
+        "output,input,split,strip,transform\n,,,,\nid,ID,,,\nname,Name,,,\n",
       ),
     },
   ]);
@@ -461,6 +492,10 @@ test("CSV and ZIP use the same picker and preserve literal source values", async
   await expect(page.getByLabel("Source preview")).toContainText("=1+1");
   await approve(page);
   await run(page);
+  await expect(
+    page.getByLabel("Returned JSON: organization_1.json"),
+  ).toContainText("=1+1");
+  expect(posts).toBe(1);
 });
 
 test("expiry preserves response history and keyboard/mobile layouts remain accessible", async ({
@@ -518,4 +553,82 @@ test("expiry preserves response history and keyboard/mobile layouts remain acces
   }
   await page.emulateMedia({ colorScheme: "dark" });
   await capture(page, info, "dark-preference-intake");
+});
+
+test("reinspection closes an abandoned correction gate and allows current-version approval", async ({
+  page,
+}, info) => {
+  await mockSuccess(page);
+  await inspect(page);
+  await page.getByText("Inspect source values", { exact: true }).click();
+  await button(page, "Correct source values").click();
+  await page
+    .getByLabel("Revised source")
+    .fill(sourceText.replace("Test Organization", "Unsaved draft"));
+  await button(page, "Change files").click();
+  await button(page, "Inspect files").click();
+  await approve(page);
+  await expect(button(page, "Run transformation")).toBeEnabled();
+  await capture(page, info, "reinspection-after");
+  await run(page);
+});
+
+test("ambiguous normalized source fields block review and evidence matches backend whitespace rules", async ({
+  page,
+}) => {
+  let posts = 0;
+  await page.route("**/transform", (route) => {
+    posts++;
+    return route.abort();
+  });
+  for (const [name, text, mappingName, mapping] of [
+    [
+      "orgs.json",
+      '[{"Name":"Public"," Name ":"Other"}]',
+      "orgs_organization_mapping.json",
+      '{"mappings":[{"input_path":"Name","output_path":"name"}]}',
+    ],
+    [
+      "orgs.csv",
+      "Name,Name\u0085\nPublic,Other\n",
+      "orgs_organization_mapping.csv",
+      "output,input\n,\nname,Name\n",
+    ],
+  ]) {
+    await page.goto("/");
+    await picker(page).setInputFiles([
+      { name, mimeType: "application/octet-stream", buffer: Buffer.from(text) },
+      {
+        name: mappingName,
+        mimeType: "application/octet-stream",
+        buffer: Buffer.from(mapping),
+      },
+    ]);
+    await button(page, "Inspect files").click();
+    await expect(page.getByRole("status")).toContainText(
+      "Ambiguous source fields",
+    );
+    await expect(button(page, "Approve mapping")).toHaveCount(0);
+  }
+  await page.goto("/");
+  await picker(page).setInputFiles([
+    {
+      name: "orgs.json",
+      mimeType: "application/json",
+      buffer: Buffer.from('[{" Name ":"Backend value"}]'),
+    },
+    {
+      name: "orgs_organization_mapping.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(
+        '{"mappings":[{"input_path":"Name","output_path":"name"}]}',
+      ),
+    },
+  ]);
+  await button(page, "Inspect files").click();
+  await page.locator(".mapping-card summary").click();
+  await expect(
+    page.getByText("Name: Backend value", { exact: true }),
+  ).toBeVisible();
+  expect(posts).toBe(0);
 });

@@ -179,3 +179,30 @@ it("rejects malformed CSV quoting before the source can be approved", async () =
     ),
   ).rejects.toThrow("orgs.csv contains malformed CSV");
 });
+
+it.each([" ", "\u0085", "\u001c"])(
+  "rejects JSON source keys that collide after backend whitespace normalization (%j)",
+  async (space) => {
+    const records = JSON.stringify([
+      { Name: "Public", [`${space}Name${space}`]: "Other" },
+    ]);
+    await expect(
+      prepareInput([source(records), mapping()], new AbortController().signal),
+    ).rejects.toThrow(/ambiguous.*source.*field/i);
+  },
+);
+
+it("rejects CSV headers that collide after backend normalization", async () => {
+  await expect(
+    prepareInput(
+      [
+        new File(["Name, Name \nPublic,Other\n"], "orgs.csv"),
+        new File(
+          ["output,input\n,\nname,Name\n"],
+          "orgs_organization_mapping.csv",
+        ),
+      ],
+      new AbortController().signal,
+    ),
+  ).rejects.toThrow(/ambiguous.*source.*field/i);
+});

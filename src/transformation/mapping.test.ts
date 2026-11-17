@@ -164,3 +164,63 @@ describe("supplied mapping review boundary", () => {
     ).toContain("inspection limit");
   });
 });
+
+it("shows the backend-normalized source keys and withholds ambiguous evidence", () => {
+  const doc = parseMappings(
+    [
+      file(
+        "orgs_organization_mapping.json",
+        '{"mappings":[{"input_path":"Name","output_path":"name"}]}',
+      ),
+    ],
+    "json",
+  )[0];
+  expect(
+    sourceEvidence(doc, doc.rows[0], [
+      file(
+        "orgs.json",
+        JSON.stringify([{ "\u0085Name\u001c": "Backend value" }]),
+      ),
+    ]),
+  ).toBe("Name: Backend value");
+  expect(
+    sourceEvidence(doc, doc.rows[0], [
+      file("orgs.json", '[{"Name":"Public"," Name ":"Other"}]'),
+    ]),
+  ).toContain("Unavailable");
+  const csv = parseMappings(
+    [file("orgs_organization_mapping.csv", "output,input\n,\nname,Name\n")],
+    "csv",
+  )[0];
+  expect(
+    sourceEvidence(csv, csv.rows[0], [
+      file("orgs.csv", " Name ,Status\nBackend value,Active\n"),
+    ]),
+  ).toBe("Name: Backend value");
+  expect(
+    sourceEvidence(csv, csv.rows[0], [
+      file("orgs.csv", "\uFEFFName,Status\nBOM value,Active\n"),
+    ]),
+  ).toContain("Unavailable");
+});
+
+it("preserves FEFF in mapping field names because the backend does not trim it", () => {
+  const text = JSON.stringify({
+    mappings: [{ input_path: "\uFEFFName", output_path: "name" }],
+  });
+  const doc = parseMappings(
+    [file("orgs_organization_mapping.json", text)],
+    "json",
+  )[0];
+  expect(doc.rows[0].inputPath).toBe("\uFEFFName");
+  expect(
+    sourceEvidence(doc, doc.rows[0], [
+      file("orgs.json", '[{"Name":"Wrong key"}]'),
+    ]),
+  ).toContain("Unavailable");
+  expect(
+    sourceEvidence(doc, doc.rows[0], [
+      file("orgs.json", JSON.stringify([{ "\uFEFFName": "Correct key" }])),
+    ]),
+  ).toContain("Correct key");
+});

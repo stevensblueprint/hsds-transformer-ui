@@ -1,0 +1,281 @@
+
+ RUN  v4.1.12 /Users/lbrevoort/dev/blueprint/hsds-transformer-ui-scaffold
+
+ ✓ src/transformation/mapping.test.ts > supplied mapping review boundary > reads upstream JSON paths, repeated fields and source evidence without executing content 3ms
+ ✓ src/transformation/mapping.test.ts > supplied mapping review boundary > preserves filter, custom transforms and unknown metadata when revising one JSON instruction 1ms
+ ✓ src/transformation/mapping.test.ts > supplied mapping review boundary > reads quoted CSV including multiline evidence and preserves positional filter/header/extra columns 1ms
+ ✓ src/transformation/mapping.test.ts > supplied mapping review boundary > blocks malformed, unsupported and over-limit mapping shapes without partial approval rows 2ms
+ ✓ src/transformation/mapping.test.ts > supplied mapping review boundary > supports multiple target instructions for one source field and never guesses missing evidence 0ms
+ × src/transformation/mapping.test.ts > shows the backend-normalized source keys and withholds ambiguous evidence 5ms
+   → expected 'Name: Unavailable — field not supplied' to be 'Name: Backend value' // Object.is equality
+ ✓ src/transformation/input.test.ts > unified source intake > prepares direct JSON source/mapping files for the existing ZIP transport without changing source bytes 5ms
+ ✓ src/transformation/input.test.ts > unified source intake > accepts CSV and ZIP through the same interface, preserving an imported archive 1ms
+ ✓ src/transformation/input.test.ts > unified source intake > normalizes a single ZIP enclosing folder but blocks layouts the backend does not scan 2ms
+ ✓ src/transformation/input.test.ts > unified source intake > blocks missing/mismatched mappings, mixed formats, ZIP with loose files and duplicate names 1ms
+ ✓ src/transformation/input.test.ts > unified source intake > rejects malformed JSON, unsupported source shape, empty files and invalid UTF-8 2ms
+ ✓ src/transformation/input.test.ts > unified source intake > keeps large source bytes with a bounded-preview warning and blocks oversized mapping inspection 27ms
+ ✓ src/transformation/input.test.ts > unified source intake > revisions replace only existing mapping bytes while retaining original input and source 1ms
+ ✓ src/transformation/input.test.ts > unified source intake > honors cancellation before selection and before revision 0ms
+ ✓ src/transformation/input.test.ts > unified source intake > never publishes prepared input when cancellation arrives during file reading 1ms
+ ✓ src/transformation/input.test.ts > rejects malformed CSV quoting before the source can be approved 0ms
+ × src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization (" ") 6ms
+   → promise resolved "{ name: 'orgs.json', …(4) }" instead of rejecting
+ × src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization ("") 1ms
+   → promise resolved "{ name: 'orgs.json', …(4) }" instead of rejecting
+ × src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization ("\u001c") 1ms
+   → promise resolved "{ name: 'orgs.json', …(4) }" instead of rejecting
+ × src/transformation/input.test.ts > rejects CSV headers that collide after backend normalization 1ms
+   → promise resolved "{ name: 'orgs.csv', …(4) }" instead of rejecting
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > separates review from run and invalidates approval for edits, questions and removed files 18ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > suppresses repeated clicks and late completion after stop, and permits an explicit fresh attempt 4ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > retains earlier input snapshots when corrected source versions are approved and rerun 5ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > retains revised mapping bytes when returning to intake and makes earlier approval stale 2ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > keeps a complete response distinct from local artifact expiry 4ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > reset or unmount aborts work and prevents stale inspection/results from returning 4ms
+ × src/transformation/useTransformation.test.ts > reinspection disposes a source editor before approving the newly inspected version 8ms
+   → expected true to be false // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization (" ")
+AssertionError: promise resolved "{ name: 'orgs.json', …(4) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "archive": File {
++     Symbol(kHandle): Blob {},
++     Symbol(kLength): 345,
++     Symbol(kType): "application/zip",
++   },
++   "files": [
++     {
++       "file": File {
++         Symbol(kHandle): Blob {},
++         Symbol(kLength): 36,
++         Symbol(kType): "",
++       },
++       "name": "orgs.json",
++       "text": "[{\"Name\":\"Public\",\" Name \":\"Other\"}]",
++     },
++     {
++       "file": File {
++         Symbol(kHandle): Blob {},
++         Symbol(kLength): 57,
++         Symbol(kType): "",
++       },
++       "name": "orgs_organization_mapping.json",
++       "text": "{\"mappings\":[{\"input_path\":\"Name\",\"output_path\":\"name\"}]}",
++     },
++   ],
++   "format": "json",
++   "name": "orgs.json",
++   "warnings": [],
+  }
+
+ ❯ src/transformation/input.test.ts:185:88
+    183| it.each([" ", "\u0085", "\u001c"])("rejects JSON source keys that coll…
+    184|   const records = JSON.stringify([{ Name: "Public", [`${space}Name${sp…
+    185|   await expect(prepareInput([source(records), mapping()], new AbortCon…
+       |                                                                                        ^
+    186| });
+    187|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization ("")
+AssertionError: promise resolved "{ name: 'orgs.json', …(4) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "archive": File {
++     Symbol(kHandle): Blob {},
++     Symbol(kLength): 347,
++     Symbol(kType): "application/zip",
++   },
++   "files": [
++     {
++       "file": File {
++         Symbol(kHandle): Blob {},
++         Symbol(kLength): 38,
++         Symbol(kType): "",
++       },
++       "name": "orgs.json",
++       "text": "[{\"Name\":\"Public\",\"Name\":\"Other\"}]",
++     },
++     {
++       "file": File {
++         Symbol(kHandle): Blob {},
++         Symbol(kLength): 57,
++         Symbol(kType): "",
++       },
++       "name": "orgs_organization_mapping.json",
++       "text": "{\"mappings\":[{\"input_path\":\"Name\",\"output_path\":\"name\"}]}",
++     },
++   ],
++   "format": "json",
++   "name": "orgs.json",
++   "warnings": [],
+  }
+
+ ❯ src/transformation/input.test.ts:185:88
+    183| it.each([" ", "\u0085", "\u001c"])("rejects JSON source keys that coll…
+    184|   const records = JSON.stringify([{ Name: "Public", [`${space}Name${sp…
+    185|   await expect(prepareInput([source(records), mapping()], new AbortCon…
+       |                                                                                        ^
+    186| });
+    187|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization ("\u001c")
+AssertionError: promise resolved "{ name: 'orgs.json', …(4) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "archive": File {
++     Symbol(kHandle): Blob {},
++     Symbol(kLength): 355,
++     Symbol(kType): "application/zip",
++   },
++   "files": [
++     {
++       "file": File {
++         Symbol(kHandle): Blob {},
++         Symbol(kLength): 46,
++         Symbol(kType): "",
++       },
++       "name": "orgs.json",
++       "text": "[{\"Name\":\"Public\",\"\\u001cName\\u001c\":\"Other\"}]",
++     },
++     {
++       "file": File {
++         Symbol(kHandle): Blob {},
++         Symbol(kLength): 57,
++         Symbol(kType): "",
++       },
++       "name": "orgs_organization_mapping.json",
++       "text": "{\"mappings\":[{\"input_path\":\"Name\",\"output_path\":\"name\"}]}",
++     },
++   ],
++   "format": "json",
++   "name": "orgs.json",
++   "warnings": [],
+  }
+
+ ❯ src/transformation/input.test.ts:185:88
+    183| it.each([" ", "\u0085", "\u001c"])("rejects JSON source keys that coll…
+    184|   const records = JSON.stringify([{ Name: "Public", [`${space}Name${sp…
+    185|   await expect(prepareInput([source(records), mapping()], new AbortCon…
+       |                                                                                        ^
+    186| });
+    187|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/transformation/input.test.ts > rejects CSV headers that collide after backend normalization
+AssertionError: promise resolved "{ name: 'orgs.csv', …(4) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "archive": File {
++     Symbol(kHandle): Blob {},
++     Symbol(kLength): 298,
++     Symbol(kType): "application/zip",
++   },
++   "files": [
++     {
++       "file": File {
++         Symbol(kHandle): Blob {},
++         Symbol(kLength): 25,
++         Symbol(kType): "",
++       },
++       "name": "orgs.csv",
++       "text": "Name, Name 
++ Public,Other
++ ",
++     },
++     {
++       "file": File {
++         Symbol(kHandle): Blob {},
++         Symbol(kLength): 25,
++         Symbol(kType): "",
++       },
++       "name": "orgs_organization_mapping.csv",
++       "text": "output,input
++ ,
++ name,Name
++ ",
++     },
++   ],
++   "format": "csv",
++   "name": "orgs.csv",
++   "warnings": [],
+  }
+
+ ❯ src/transformation/input.test.ts:192:35
+    190|     new File(["Name, Name \nPublic,Other\n"], "orgs.csv"),
+    191|     new File(["output,input\n,\nname,Name\n"], "orgs_organization_mapp…
+    192|   ], new AbortController().signal)).rejects.toThrow(/ambiguous.*source…
+       |                                   ^
+    193| });
+    194|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/transformation/mapping.test.ts > shows the backend-normalized source keys and withholds ambiguous evidence
+AssertionError: expected 'Name: Unavailable — field not supplied' to be 'Name: Backend value' // Object.is equality
+
+Expected: "Name: Backend value"
+Received: "Name: Unavailable — field not supplied"
+
+ ❯ src/transformation/mapping.test.ts:170:124
+    168| it("shows the backend-normalized source keys and withholds ambiguous e…
+    169|   const doc = parseMappings([file("orgs_organization_mapping.json", '{…
+    170|   expect(sourceEvidence(doc, doc.rows[0], [file("orgs.json", JSON.stri…
+       |                                                                                                                            ^
+    171|   expect(sourceEvidence(doc, doc.rows[0], [file("orgs.json", '[{"Name"…
+    172|   const csv = parseMappings([file("orgs_organization_mapping.csv", "ou…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/transformation/useTransformation.test.ts > reinspection disposes a source editor before approving the newly inspected version
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/transformation/useTransformation.test.ts:223:40
+    221|   act(() => result.current.setView("intake"));
+    222|   await act(async () => { await result.current.inspect(); });
+    223|   expect(result.current.sourceEditing).toBe(false);
+       |                                        ^
+    224|   act(() => result.current.approvePending());
+    225|   act(() => result.current.approve());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  6 failed | 21 passed (27)
+   Start at  14:45:43
+   Duration  754ms (transform 216ms, setup 452ms, import 193ms, tests 111ms, environment 438ms)
+

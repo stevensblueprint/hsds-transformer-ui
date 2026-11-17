@@ -173,6 +173,7 @@ export function useTransformation() {
       setDraftFiles(files);
       setSourceVersion((version) => version + 1);
       setMappingVersion(1);
+      setSourceEditing(false);
       setDecisions({});
       setChanges([]);
       setView("mapping");
@@ -327,6 +328,7 @@ export function useTransformation() {
       setInput({ ...revised, provenance: input.provenance });
       setDraftFiles(revised.files.map((file) => file.file));
       setSourceVersion((version) => version + 1);
+      setSourceEditing(false);
       setDecisions({});
       setChanges((current) => [
         ...current,
