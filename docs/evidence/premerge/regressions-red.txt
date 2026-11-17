@@ -20,7 +20,8 @@
  ✓ src/transformation/input.test.ts > rejects malformed CSV quoting before the source can be approved 0ms
  × src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization (" ") 6ms
    → promise resolved "{ name: 'orgs.json', …(4) }" instead of rejecting
- × src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization ("") 1ms
+ × src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization ("
+") 1ms
    → promise resolved "{ name: 'orgs.json', …(4) }" instead of rejecting
  × src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization ("\u001c") 1ms
    → promise resolved "{ name: 'orgs.json', …(4) }" instead of rejecting
@@ -86,7 +87,8 @@ AssertionError: promise resolved "{ name: 'orgs.json', …(4) }" instead of reje
 
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
 
- FAIL  src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization ("")
+ FAIL  src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization ("
+")
 AssertionError: promise resolved "{ name: 'orgs.json', …(4) }" instead of rejecting
 
 - Expected
@@ -108,7 +110,9 @@ AssertionError: promise resolved "{ name: 'orgs.json', …(4) }" instead of reje
 +         Symbol(kType): "",
 +       },
 +       "name": "orgs.json",
-+       "text": "[{\"Name\":\"Public\",\"Name\":\"Other\"}]",
++       "text": "[{\"Name\":\"Public\",\"
+Name
+\":\"Other\"}]",
 +     },
 +     {
 +       "file": File {
@@ -206,7 +210,7 @@ AssertionError: promise resolved "{ name: 'orgs.csv', …(4) }" instead of rejec
 +         Symbol(kType): "",
 +       },
 +       "name": "orgs.csv",
-+       "text": "Name, Name 
++       "text": "Name, Name
 + Public,Other
 + ",
 +     },
@@ -278,4 +282,3 @@ AssertionError: expected true to be false // Object.is equality
       Tests  6 failed | 21 passed (27)
    Start at  14:45:43
    Duration  754ms (transform 216ms, setup 452ms, import 193ms, tests 111ms, environment 438ms)
-

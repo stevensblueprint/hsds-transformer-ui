@@ -1,0 +1,9 @@
+{
+  "http": "HTTP/1.1 201 Created",
+  "output": {
+    "id": "1",
+    "name": "=1+1"
+  },
+  "zip_crc": "passed",
+  "backend": "6486294a7aac8fbce1bb4e021fe6e810c1f335df"
+}

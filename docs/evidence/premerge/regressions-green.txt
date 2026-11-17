@@ -1,0 +1,36 @@
+
+ RUN  v4.1.12 /Users/lbrevoort/dev/blueprint/hsds-transformer-ui-scaffold
+
+ ✓ src/transformation/mapping.test.ts > supplied mapping review boundary > reads upstream JSON paths, repeated fields and source evidence without executing content 3ms
+ ✓ src/transformation/mapping.test.ts > supplied mapping review boundary > preserves filter, custom transforms and unknown metadata when revising one JSON instruction 1ms
+ ✓ src/transformation/mapping.test.ts > supplied mapping review boundary > reads quoted CSV including multiline evidence and preserves positional filter/header/extra columns 1ms
+ ✓ src/transformation/mapping.test.ts > supplied mapping review boundary > blocks malformed, unsupported and over-limit mapping shapes without partial approval rows 2ms
+ ✓ src/transformation/mapping.test.ts > supplied mapping review boundary > supports multiple target instructions for one source field and never guesses missing evidence 0ms
+ ✓ src/transformation/mapping.test.ts > shows the backend-normalized source keys and withholds ambiguous evidence 0ms
+ ✓ src/transformation/input.test.ts > unified source intake > prepares direct JSON source/mapping files for the existing ZIP transport without changing source bytes 5ms
+ ✓ src/transformation/input.test.ts > unified source intake > accepts CSV and ZIP through the same interface, preserving an imported archive 2ms
+ ✓ src/transformation/input.test.ts > unified source intake > normalizes a single ZIP enclosing folder but blocks layouts the backend does not scan 2ms
+ ✓ src/transformation/input.test.ts > unified source intake > blocks missing/mismatched mappings, mixed formats, ZIP with loose files and duplicate names 1ms
+ ✓ src/transformation/input.test.ts > unified source intake > rejects malformed JSON, unsupported source shape, empty files and invalid UTF-8 1ms
+ ✓ src/transformation/input.test.ts > unified source intake > keeps large source bytes with a bounded-preview warning and blocks oversized mapping inspection 26ms
+ ✓ src/transformation/input.test.ts > unified source intake > revisions replace only existing mapping bytes while retaining original input and source 2ms
+ ✓ src/transformation/input.test.ts > unified source intake > honors cancellation before selection and before revision 1ms
+ ✓ src/transformation/input.test.ts > unified source intake > never publishes prepared input when cancellation arrives during file reading 1ms
+ ✓ src/transformation/input.test.ts > rejects malformed CSV quoting before the source can be approved 0ms
+ ✓ src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization (" ") 0ms
+ ✓ src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization ("") 0ms
+ ✓ src/transformation/input.test.ts > rejects JSON source keys that collide after backend whitespace normalization ("\u001c") 0ms
+ ✓ src/transformation/input.test.ts > rejects CSV headers that collide after backend normalization 0ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > separates review from run and invalidates approval for edits, questions and removed files 18ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > suppresses repeated clicks and late completion after stop, and permits an explicit fresh attempt 4ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > retains earlier input snapshots when corrected source versions are approved and rerun 4ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > retains revised mapping bytes when returning to intake and makes earlier approval stale 2ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > keeps a complete response distinct from local artifact expiry 4ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > reset or unmount aborts work and prevents stale inspection/results from returning 5ms
+ ✓ src/transformation/useTransformation.test.ts > reinspection disposes a source editor before approving the newly inspected version 2ms
+
+ Test Files  3 passed (3)
+      Tests  27 passed (27)
+   Start at  14:46:22
+   Duration  779ms (transform 249ms, setup 454ms, import 221ms, tests 93ms, environment 433ms)
+
