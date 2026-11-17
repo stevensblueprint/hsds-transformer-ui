@@ -1,0 +1,22 @@
+{
+  "recorded_app_revision": "8a173153aedf9b939bbf3ea4256ed215ea281949",
+  "backend_revision": "6486294a7aac8fbce1bb4e021fe6e810c1f335df",
+  "recorded_utc": "2026-11-17T17:27:46Z",
+  "input": "Unchanged upstream orgs.json and orgs_organization_mapping.json; then a reviewed manual change to the organization name",
+  "backend": "Actual local FastAPI; both sessions received two HTTP 201 POST /transform responses; no transport mocks or model calls.",
+  "result_check": "Browser showed Test Organization in attempt 1 and Reviewed Organization in attempt 2; earlier output remained selectable. Corrected ZIP download was initiated through the UI. Recorded download CRC not independently checked; previous automated local-flow CRC evidence remains separate.",
+  "video": {
+    "file": "open-referral-transformation-demo.mp4",
+    "sha256": "6440fc10ff8b781558555f8a548b49961f0096da3d0a26ff6c9ca896dbfb6889",
+    "bytes": 1147809,
+    "width": 1440,
+    "height": 1100,
+    "fps": 24,
+    "duration_seconds": 68.5,
+    "codec": "H.264, 8-bit 4:2:0",
+    "audio": "none; burned-in captions",
+    "decode_check": "PASS: complete file decoded without errors"
+  },
+  "editing": "Final cut combines two actual recordings of the same build and upstream fixture workflow. Idle time shortened and fast interactions slowed for readability. No application states or API responses fabricated.",
+  "limits": "Browser memory only; schema not run; semantic checks unavailable; local backend uses installed dependencies, not a fresh locked install or production service."
+}

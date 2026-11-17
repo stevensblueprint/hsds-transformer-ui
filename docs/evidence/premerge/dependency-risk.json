@@ -1,0 +1,15 @@
+{
+  "reviewed_runtime": "f3944650234cb0f531e7b771e796bc6cd831988e",
+  "audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 11,
+    "critical": 0,
+    "total": 11
+  },
+  "advisory": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
+  "dependency": "picomatch 4.0.7, development tooling only",
+  "patched_version": "None published; npm registry latest 4.0.7 at review",
+  "assessment": "No demonstrated application exploit path: attacker-controlled glob patterns are required, but uploaded source data stays in browser memory and POSTs to Python; glob patterns come from trusted Vite/Vitest/ESLint configuration. Static dist does not bundle picomatch. Residual dev-tooling risk; not an audit pass or zero-vulnerability claim. No forced incompatible tool downgrade."
+}

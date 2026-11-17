@@ -503,18 +503,26 @@ describe("reviewed correction, rerun and comparison", () => {
 });
 
 describe("integrated correctness regressions", () => {
-  it("keeps the selected workflow step when the skip link targets the workspace", () => {
+  it("keeps contextual intake stable when legacy hashes or the skip link target the workspace", () => {
     const previousHash = window.location.hash;
     try {
       window.location.hash = "#mapping";
       render(createElement(App));
       expect(
-        screen.getByRole("heading", { name: "Review & approve", level: 1 }),
+        screen.getByRole("heading", {
+          name: "Bring your data into focus",
+          level: 1,
+        }),
       ).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("link", { name: "Skip to workspace" }));
+      expect(document.getElementById("workspace")).toHaveFocus();
       window.location.hash = "#workspace";
       fireEvent(window, new HashChangeEvent("hashchange"));
       expect(
-        screen.getByRole("heading", { name: "Review & approve", level: 1 }),
+        screen.getByRole("heading", {
+          name: "Bring your data into focus",
+          level: 1,
+        }),
       ).toBeInTheDocument();
     } finally {
       window.location.hash = previousHash;

@@ -1,0 +1,100 @@
+Sensitivity check in isolated temporary source copy. Recreated the reviewed stale-input-on-removal and stale-staged-bytes defects; production working tree untouched.
+
+
+ RUN  v4.1.12 /private/tmp/blueprint-interaction-regression-check
+
+ × src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > separates review from run and invalidates approval for edits, questions and removed files 23ms
+   → expected { name: 'orgs.json', …(5) } to be null
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > suppresses repeated clicks and late completion after stop, and permits an explicit fresh attempt 4ms
+ × src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > retains earlier input snapshots when corrected source versions are approved and rerun 6ms
+   → expected [ File{ …(1) } ] to deeply equal [ File{ …(1) }, File{ …(1) } ]
+ × src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > retains revised mapping bytes when returning to intake and makes earlier approval stale 3ms
+   → expected undefined to be File{ …(1) } // Object.is equality
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > keeps a complete response distinct from local artifact expiry 4ms
+ ✓ src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > reset or unmount aborts work and prevents stale inspection/results from returning 6ms
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 passed (6)
+   Start at  12:11:20
+   Duration  847ms (transform 106ms, setup 150ms, import 100ms, tests 47ms, environment 430ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > separates review from run and invalidates approval for edits, questions and removed files
+AssertionError: expected { name: 'orgs.json', …(5) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "archive": File {},
+  "files": [
+    {
+      "file": File {},
+      "name": "orgs.json",
+      "text": "[{\"ID\":\"1\",\"Name\":\"Original\"}]",
+    },
+    {
+      "file": File {},
+      "name": "orgs_organization_mapping.json",
+      "text": "{\"mappings\":[{\"input_path\":\"Name\",\"output_path\":\"name\"}]}",
+    },
+  ],
+  "format": "json",
+  "name": "orgs.json",
+  "provenance": undefined,
+  "warnings": [],
+}
+
+ ❯ src/transformation/useTransformation.test.ts:85:34
+     83|     expect(result.current.approved).toBe(false);
+     84|     act(() => result.current.removeFile(0));
+     85|     expect(result.current.input).toBeNull();
+       |                                  ^
+     86|     expect(result.current.rows).toHaveLength(0);
+     87|     await act(async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > retains earlier input snapshots when corrected source versions are approved and rerun
+AssertionError: expected [ File{ …(1) } ] to deeply equal [ File{ …(1) }, File{ …(1) } ]
+
+- Expected
++ Received
+
+  [
+    File {},
+-   File {},
+  ]
+
+ ❯ src/transformation/useTransformation.test.ts:139:39
+    137|     expect(result.current.runs[0]).toBe(earlier);
+    138|     expect(earlier.inputSnapshot.files[0].text).toContain("Original");
+    139|     expect(result.current.draftFiles).toEqual(
+       |                                       ^
+    140|       result.current.input!.files.map((file) => file.file),
+    141|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/transformation/useTransformation.test.ts > continuous real transformation lifecycle > retains revised mapping bytes when returning to intake and makes earlier approval stale
+AssertionError: expected undefined to be File{ …(1) } // Object.is equality
+
+- Expected:
+File {}
+
++ Received:
+undefined
+
+ ❯ src/transformation/useTransformation.test.ts:170:42
+    168|     expect(result.current.mappingVersion).toBe(2);
+    169|     expect(result.current.approved).toBe(false);
+    170|     expect(result.current.draftFiles[1]).toBe(revised.files[1].file);
+       |                                          ^
+    171|     expect(result.current.changes[0].before).toContain('"name"');
+    172|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
