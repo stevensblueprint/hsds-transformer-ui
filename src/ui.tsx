@@ -37,7 +37,14 @@ export function Panel({
         <h2>{title}</h2>
         {meta && <span>{meta}</span>}
       </div>
-      <div className="panel-body">{children}</div>
+      <div
+        className="panel-body"
+        tabIndex={0}
+        role="region"
+        aria-label={`${title} contents`}
+      >
+        {children}
+      </div>
     </section>
   );
 }

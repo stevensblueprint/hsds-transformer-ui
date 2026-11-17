@@ -1,0 +1,79 @@
+{
+  "backendRevision": "6486294a7aac8fbce1bb4e021fe6e810c1f335df",
+  "input": "Bundled upstream orgs.json + supplied JSON mapping",
+  "requests": [
+    "http://localhost:8000/transform",
+    "http://localhost:8000/transform"
+  ],
+  "first": {
+    "id": "1",
+    "name": "Test Organization",
+    "description": "Clean Me",
+    "languages": [
+      {
+        "name": "en"
+      },
+      {
+        "name": "fr"
+      }
+    ],
+    "phones": [
+      {
+        "number": "555-0100",
+        "type": "Office"
+      },
+      {
+        "number": "555-0101",
+        "type": "Mobile"
+      }
+    ],
+    "attributes": [
+      {
+        "value": "HasWifi",
+        "label": "Feature1"
+      },
+      {
+        "value": "HasParking",
+        "label": "Feature2"
+      }
+    ],
+    "tags": ["tagA", "tagB"]
+  },
+  "second": {
+    "id": "1",
+    "name": "Reviewed Organization",
+    "description": "Clean Me",
+    "languages": [
+      {
+        "name": "en"
+      },
+      {
+        "name": "fr"
+      }
+    ],
+    "phones": [
+      {
+        "number": "555-0100",
+        "type": "Office"
+      },
+      {
+        "number": "555-0101",
+        "type": "Mobile"
+      }
+    ],
+    "attributes": [
+      {
+        "value": "HasWifi",
+        "label": "Feature1"
+      },
+      {
+        "value": "HasParking",
+        "label": "Feature2"
+      }
+    ],
+    "tags": ["tagA", "tagB"]
+  },
+  "localSourceVersions": [1, 2],
+  "mappingVersion": 1,
+  "limitations": "HTTP 201 actual returned JSON; no HSDS schema/semantic checks. Existing installed local backend dependencies, not a fresh locked backend install."
+}

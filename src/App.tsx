@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
-import RepositoryWorkspace from "./RepositoryWorkspace";
-import RealZipFlow from "./integration/RealZipFlow";
+import Workspace from "./transformation/Workspace";
 import "@fontsource/poppins/600.css";
 import "@fontsource/albert-sans/400.css";
 import "@fontsource/albert-sans/500.css";
@@ -8,7 +7,6 @@ import "@fontsource/albert-sans/600.css";
 import "./App.css";
 
 export default function App() {
-  const [mode, setMode] = useState<"repository" | "zip">("repository");
   const [help, setHelp] = useState(false);
   const helpButton = useRef<HTMLButtonElement>(null);
   return (
@@ -24,7 +22,11 @@ export default function App() {
         Skip to workspace
       </a>
       <header className="app-header">
-        <a className="wordmark" href="#source" aria-label="Open Referral home">
+        <a
+          className="wordmark"
+          href="#workspace"
+          aria-label="Open Referral home"
+        >
           <span>
             OPEN
             <span className="wordmark-lines" aria-hidden="true">
@@ -51,11 +53,12 @@ export default function App() {
         <section className="help-panel" aria-label="Workflow help">
           <h2>Inspect, review, then transform</h2>
           <p>
-            The repository JSON option uses the actual JSON and mapping from
-            hsds-transformer main. Uploads go only to the displayed configured
-            backend. Mapping review stays in this browser; structured
-            validation, saved approval/history and model assistance are not
-            connected. Refresh clears selection and results.
+            Add CSV or JSON source and mapping files, or a ZIP containing both.
+            Inspect locally, review and edit the mapping, then approve this
+            version before explicitly running. Returned JSON and earlier
+            attempts stay in this session. Schema validation, saved
+            approval/history and model assistance are not connected. Refresh
+            clears files and results.
           </p>
           <button
             className="button secondary"
@@ -68,40 +71,7 @@ export default function App() {
           </button>
         </section>
       )}
-      <div className="workspace-toolbar">
-        <span className="eyebrow">Choose your input</span>
-        <fieldset className="mode-switch">
-          <legend className="visually-hidden">Input mode</legend>
-          <label>
-            <input
-              type="radio"
-              name="mode"
-              checked={mode === "repository"}
-              onChange={() => setMode("repository")}
-            />{" "}
-            Repository JSON
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="mode"
-              checked={mode === "zip"}
-              onChange={() => setMode("zip")}
-            />{" "}
-            ZIP upload
-          </label>
-        </fieldset>
-      </div>
-      {mode === "repository" ? (
-        <RepositoryWorkspace />
-      ) : (
-        <main id="workspace" tabIndex={-1}>
-          <div className="page-heading">
-            <h1>Transform a ZIP archive</h1>
-          </div>
-          <RealZipFlow />
-        </main>
-      )}
+      <Workspace />
       <footer className="app-footer">
         <span>Blueprint · Open Referral</span>
         <span>
