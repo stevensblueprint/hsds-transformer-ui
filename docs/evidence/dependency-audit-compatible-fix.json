@@ -1,0 +1,66 @@
+{
+  "add": [],
+  "added": 0,
+  "audited": 330,
+  "change": [],
+  "changed": 0,
+  "funding": 80,
+  "remove": [],
+  "removed": 0,
+  "audit": {
+    "auditReportVersion": 2,
+    "vulnerabilities": {},
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      },
+      "dependencies": {
+        "prod": 6,
+        "dev": 324,
+        "optional": 6,
+        "peer": 7,
+        "peerOptional": 0,
+        "total": 329
+      }
+    }
+  },
+  "unreviewedScripts": [
+    {
+      "name": "esbuild",
+      "version": "0.28.2",
+      "path": "/Users/lbrevoort/dev/blueprint/hsds-transformer-ui-scaffold/node_modules/esbuild",
+      "scripts": {
+        "install": "(install scripts present)"
+      }
+    },
+    {
+      "name": "fsevents",
+      "version": "2.3.3",
+      "path": "/Users/lbrevoort/dev/blueprint/hsds-transformer-ui-scaffold/node_modules/fsevents",
+      "scripts": {
+        "install": "(install scripts present)"
+      }
+    },
+    {
+      "name": "msw",
+      "version": "2.12.7",
+      "path": "/Users/lbrevoort/dev/blueprint/hsds-transformer-ui-scaffold/node_modules/msw",
+      "scripts": {
+        "install": "(install scripts present)"
+      }
+    },
+    {
+      "name": "fsevents",
+      "version": "2.3.2",
+      "path": "/Users/lbrevoort/dev/blueprint/hsds-transformer-ui-scaffold/node_modules/playwright/node_modules/fsevents",
+      "scripts": {
+        "install": "(install scripts present)"
+      }
+    }
+  ]
+}

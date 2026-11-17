@@ -1,0 +1,1201 @@
+
+> hsds-transformer-ui@0.0.1 test
+> vitest run src/workflow/reducer.test.ts
+
+
+ RUN  v4.0.18 /Users/lbrevoort/dev/blueprint/hsds-transformer-ui-scaffold
+
+ ❯ src/workflow/reducer.test.ts (29 tests | 6 failed) 241ms
+     ✓ distinguishes selection, inspection and approval without uploads or persisted data 2ms
+     ✓ keeps clarification distinct from approval and preserves one-to-many paths 1ms
+     ✓ blocks unresolved, unsupported and rejected proposals until reviewed 0ms
+     ✓ accepts an intentional unmapped decision without executing transforms 1ms
+     ✓ binds approval to inspected source, mapping and target versions 1ms
+     ✓ does not duplicate approval or run submission on repeated clicks 0ms
+     ✓ requires a nonblank clarification and supported full target paths 0ms
+     ✓ advances fixture stages and distinguishes transformation from real validity 1ms
+     ✓ ignores stale stage callbacks from an earlier run 0ms
+     ✓ retains deterministic evidence and answers across model failure and retry 0ms
+     ✓ keeps interrupted status unknown through reconnect without claiming recovery 0ms
+     ✓ separates cancellation request from acknowledgement 0ms
+     ✓ retains partial reports but withholds complete output artifacts 0ms
+     ✓ separates system failure from invalid data and retries as a fresh run 0ms
+     ✓ freezes scenario on each run rather than changing an active result 0ms
+     ✓ blocks simulated conflicts without creating a false approval or run 0ms
+     ✓ expires downloads without erasing report provenance 0ms
+     ✓ preserves source and earlier reports across rejection, revision, approval and rerun 1ms
+     ✓ does not consider correction approval evidence that the correction passed 0ms
+     ✓ blocks stale correction application and preserves original reports 0ms
+     ✓ does not apply an approved patch after later mapping changes 0ms
+     ✓ never marks absent or duplicated stable identities as confidently resolved 0ms
+     ✓ keeps navigation separate from decisions, and reset removes all session state 0ms
+     × keeps the selected workflow step when the skip link targets the workspace 206ms
+     × does not show a rejected mapping destination in a current approved sample 16ms
+     × does not call earlier findings resolved when the new run failed before checks 4ms
+     × does not call earlier findings resolved when the new report is partial 4ms
+     × deduplicates repeated clarification submissions instead of creating extra versions 1ms
+     × deduplicates repeated correction revision submissions 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/workflow/reducer.test.ts > integrated correctness regressions > keeps the selected workflow step when the skip link targets the workspace
+TestingLibraryElementError: Unable to find an accessible element with the role "heading" and name "Review & approve"
+
+Here are the accessible roles:
+
+  link:
+
+  Name "Skip to workspace":
+  [36m<a[39m
+    [33mclass[39m=[32m"skip-link"[39m
+    [33mhref[39m=[32m"#workspace"[39m
+  [36m/>[39m
+
+  Name "Open Referral home":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Open Referral home"[39m
+    [33mclass[39m=[32m"wordmark"[39m
+    [33mhref[39m=[32m"#source"[39m
+  [36m/>[39m
+
+  Name "Source":
+  [36m<a[39m
+    [33maria-current[39m=[32m"step"[39m
+    [33maria-label[39m=[32m"Source"[39m
+    [33mhref[39m=[32m"#source"[39m
+  [36m/>[39m
+
+  Name "Mapping":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Mapping"[39m
+    [33mhref[39m=[32m"#mapping"[39m
+  [36m/>[39m
+
+  Name "Run":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Run"[39m
+    [33mhref[39m=[32m"#run"[39m
+  [36m/>[39m
+
+  Name "Review":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Review"[39m
+    [33mhref[39m=[32m"#review"[39m
+  [36m/>[39m
+
+  Name "Export":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Export"[39m
+    [33mhref[39m=[32m"#export"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"app-header"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Workflow help":
+  [36m<button[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33maria-label[39m=[32m"Workflow help"[39m
+    [33mclass[39m=[32m"help-button"[39m
+  [36m/>[39m
+
+  Name "Browse simulated source":
+  [36m<button[39m
+    [33mclass[39m=[32m"button secondary"[39m
+  [36m/>[39m
+
+  Name "Load synthetic sample":
+  [36m<button[39m
+    [33mclass[39m=[32m"button primary"[39m
+  [36m/>[39m
+
+  Name "Approve mapping version":
+  [36m<button[39m
+    [33mclass[39m=[32m"button secondary"[39m
+    [33mdisabled[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Run transformation":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Run transformation"[39m
+    [33mclass[39m=[32m"button primary"[39m
+    [33mdisabled[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Simulate source version change":
+  [36m<button[39m
+    [33mclass[39m=[32m"button secondary"[39m
+    [33mdisabled[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Simulate target contract change":
+  [36m<button[39m
+    [33mclass[39m=[32m"button secondary"[39m
+  [36m/>[39m
+
+  Name "Reconnect synthetic workspace":
+  [36m<button[39m
+    [33mclass[39m=[32m"button secondary"[39m
+  [36m/>[39m
+
+  Name "Reset demo":
+  [36m<button[39m
+    [33mclass[39m=[32m"button secondary"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "Integration mode":
+  [36m<fieldset[39m
+    [33mclass[39m=[32m"mode-switch"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<details[39m
+    [33mclass[39m=[32m"details"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<details[39m
+    [33mclass[39m=[32m"scenario-panel"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  radio:
+
+  Name "Synthetic demo":
+  [36m<input[39m
+    [33mchecked[39m=[32m""[39m
+    [33mname[39m=[32m"mode"[39m
+    [33mtype[39m=[32m"radio"[39m
+  [36m/>[39m
+
+  Name "Real ZIP integration":
+  [36m<input[39m
+    [33mname[39m=[32m"mode"[39m
+    [33mtype[39m=[32m"radio"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Transformation workflow":
+  [36m<nav[39m
+    [33maria-label[39m=[32m"Transformation workflow"[39m
+    [33mclass[39m=[32m"workflow-nav"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ol />[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main[39m
+    [33mid[39m=[32m"workspace"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"eyebrow"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"eyebrow"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "Bring your data into focus":
+  [36m<h1[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  Name "Your file":
+  [36m<h2 />[39m
+
+  Name "Choose a source. Keep its meaning.":
+  [36m<h3 />[39m
+
+  Name "Harbor Community Directory":
+  [36m<h3 />[39m
+
+  Name "Output file":
+  [36m<h2 />[39m
+
+  Name "Your output will appear here":
+  [36m<h3 />[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<p[39m
+    [33maria-atomic[39m=[32m"true"[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"session-status"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  region:
+
+  Name "Your file":
+  [36m<section[39m
+    [33maria-label[39m=[32m"Your file"[39m
+    [33mclass[39m=[32m"panel"[39m
+  [36m/>[39m
+
+  Name "Output file":
+  [36m<section[39m
+    [33maria-label[39m=[32m"Output file"[39m
+    [33mclass[39m=[32m"panel"[39m
+  [36m/>[39m
+
+  Name "Approval scope and primary actions":
+  [36m<section[39m
+    [33maria-label[39m=[32m"Approval scope and primary actions"[39m
+    [33mclass[39m=[32m"approval-bar"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  complementary:
+
+  Name "Workflow guidance":
+  [36m<aside[39m
+    [33maria-label[39m=[32m"Workflow guidance"[39m
+    [33mclass[39m=[32m"guide"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  img:
+
+  Name "Open Referral guide":
+  [36m<svg[39m
+    [33maria-label[39m=[32m"Open Referral guide"[39m
+    [33mclass[39m=[32m"mascot"[39m
+    [33mrole[39m=[32m"img"[39m
+    [33mviewBox[39m=[32m"0 0 150 110"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  term:
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  --------------------------------------------------
+  definition:
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Scenario for the next synthetic action":
+  [36m<select[39m
+    [33mid[39m=[32m"scenario"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  option:
+
+  Name "Normal fixture behavior":
+  [36m<option[39m
+    [33mvalue[39m=[32m"normal"[39m
+  [36m/>[39m
+
+  Name "Model timeout · deterministic report remains":
+  [36m<option[39m
+    [33mvalue[39m=[32m"model-timeout"[39m
+  [36m/>[39m
+
+  Name "Malformed model output · no suggestion applied":
+  [36m<option[39m
+    [33mvalue[39m=[32m"model-malformed"[39m
+  [36m/>[39m
+
+  Name "Version conflict · approval/run blocked":
+  [36m<option[39m
+    [33mvalue[39m=[32m"conflict"[39m
+  [36m/>[39m
+
+  Name "Partial result · one unprocessed record":
+  [36m<option[39m
+    [33mvalue[39m=[32m"partial"[39m
+  [36m/>[39m
+
+  Name "System failure · checks not run":
+  [36m<option[39m
+    [33mvalue[39m=[32m"system-failure"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  [36m<footer[39m
+    [33mclass[39m=[32m"app-footer"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"application"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#workspace"[39m
+      [36m>[39m
+        [0mSkip to workspace[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"app-header"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33maria-label[39m=[32m"Open Referral home"[39m
+          [33mclass[39m=[32m"wordmark"[39m
+          [33mhref[39m=[32m"#source"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mOPEN[0m
+            [36m<span[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"wordmark-lines"[39m
+            [36m>[39m
+              [0m═══[0m
+            [36m</span>[39m
+          [36m</span>[39m
+          [36m<span>[39m
+            [0mREFERRAL[0m
+          [36m</span>[39m
+        [36m</a>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"brand-title"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mOPEN REFERRAL[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0m.json File Converter[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<button[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33maria-label[39m=[32m"Workflow help"[39m
+          [33mclass[39m=[32m"help-button"[39m
+        [36m>[39m
+          [0m?[0m
+        [36m</button>[39m
+      [36m</header>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"workspace-toolbar"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"eyebrow"[39m
+          [36m>[39m
+            [0mDataset workspace[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mNew source[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<fieldset[39m
+          [33mclass[39m=[32m"mode-switch"[39m
+        [36m>[39m
+          [36m<legend[39m
+            [33mclass[39m=[32m"visually-hidden"[39m
+          [36m>[39m
+            [0mIntegration mode[0m
+          [36m</legend>[39m
+          [36m<label>[39m
+            [36m<input[39m
+              [33mchecked[39m=[32m""[39m
+              [33mname[39m=[32m"mode"[39m
+              [33mtype[39m=[32m"radio"[39m
+            [36m/>[39m
+            [0m [0m
+            [0mSynthetic demo[0m
+          [36m</label>[39m
+          [36m<label>[39m
+            [36m<input[39m
+              [33mname[39m=[32m"mode"[39m
+              [33mtype[39m=[32m"radio"[39m
+            [36m/>[39m
+            [0m [0m
+            [0mReal ZIP integration[0m
+          [36m</label>[39m
+        [36m</fieldset>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"mode-banner"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"badge warning"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33maria-hidden[39m=[32m"true"[39m
+          [36m>[39m
+            [0m·[0m
+          [36m</span>[39m
+          [0m [0m
+          [0mSIMULATED[0m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mSynthetic data · no backend or model calls · memory only; reload loses this session.[0m
+        [36m</span>[39m
+      [36m</div>[39m
+      [36m<nav[39m
+        [33maria-label[39m=[32m"Transformation workflow"[39m
+        [33mclass[39m=[32m"workflow-nav"[39m
+      [36m>[39m
+        [36m<ol>[39m
+          [36m<li>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"step"[39m
+              [33maria-label[39m=[32m"Source"[39m
+              [33mhref[39m=[32m"#source"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"step-index"[39m
+              [36m>[39m
+                [0m01[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mSource[0m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Mapping"[39m
+              [33mhref[39m=[32m"#mapping"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"step-index"[39m
+              [36m>[39m
+                [0m02[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mMapping[0m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Run"[39m
+              [33mhref[39m=[32m"#run"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"step-index"[39m
+              [36m>[39m
+                [0m03[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mRun[0m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Review"[39m
+              [33mhref[39m=[32m"#review"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"step-index"[39m
+              [36m>[39m
+                [0m04[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mReview[0m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Export"[39m
+              [33mhref[39m=[32m"#export"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"step-index"[39m
+              [36m>[39m
+                [0m05[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mExport[0m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</li>[39m
+        [36m</ol>[39m
+      [36m</nav>[39m
+      [36m<main[39m
+        [33mid[39m=[32m"workspace"[39m
+        [33mtabindex[39m=[32m"-1"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"page-heading"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"eyebrow"[39m
+            [36m>[39m
+              [0m01 / 05 · source[0m
+            [36m</p>[39m
+            [36m<h1[39m
+              [33mtabindex[39m=[32m"-1"[39m
+            [36m>[39m
+              [0mBring your data into focus[0m
+            [36m</h1>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"version-summary"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mSource [0m
+              [0m—[0m
+              [0m · Mapping v[0m
+              [0m1[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"badge neutral"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+              [36m>[39m
+                [0m·[0m
+              [36m</span>[39m
+              [0m [0m
+              [0mApproval required[0m
+            [36m</span>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33maria-atomic[39m=[32m"true"[39m
+          [33maria-live[39m=[32m"polite"[39m
+          [33mclass[39m=[32m"session-status"[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m>[39m
+          [0mSynthetic workspace. Nothing is uploaded or saved; reloading clears this session.[0m
+        [36m</p>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"workspace-grid step-source"[39m
+        [36m>[39m
+          [36m<section[39m
+            [33maria-label[39m=[32m"Your file"[39m
+            [33mclass[39m=[32m"panel"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"panel-heading"[39m
+            [36m>[39m
+              [36m<h2>[39m
+                [0mYour file[0m
+              [36m</h2>[39m
+              [36m<span>[39m
+                [0mSource · 01[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"panel-body"[39m
+            [36m>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"eyebrow"[39m
+              [36m>[39m
+                [0mA clear start for your directory[0m
+              [36m</p>[39m
+              [36m<h3>[39m
+                [0mChoose a source. Keep its meaning.[0m
+              [36m</h3>[39m
+              [36m<p>[39m
+                [0mExplore three invented services, linked locations, and a contact number that needs review.[0m
+              [36m</p>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"drop-zone"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"file-symbol"[39m
+                [36m>[39m
+                  [0m⇧[0m
+                [36m</span>[39m
+                [36m<strong>[39m
+                  [0mBring a source file[0m
+                [36m</strong>[39m
+                [36m<p>[39m
+                  [0mCSV and JSON are simulated here. ZIP processing is available in real integration mode.[0m
+                [36m</p>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"button secondary"[39m
+                [36m>[39m
+                  [0mBrowse simulated source[0m
+                [36m</button>[39m
+                [36m<input[39m
+                  [33maccept[39m=[32m".csv,.json,.zip"[39m
+                  [33maria-label[39m=[32m"Simulated source file"[39m
+                  [33mclass[39m=[32m"visually-hidden"[39m
+                  [33mtabindex[39m=[32m"-1"[39m
+                  [33mtype[39m=[32m"file"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"sample-card"[39m
+              [36m>[39m
+                [36m<div>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"badge neutral"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                    [36m>[39m
+                      [0m·[0m
+                    [36m</span>[39m
+                    [0m [0m
+                    [0mSynthetic fixture[0m
+                  [36m</span>[39m
+                  [36m<h3>[39m
+                    [0mHarbor Community Directory[0m
+                  [36m</h3>[39m
+                  [36m<p>[39m
+                    [0m2 named CSVs · 3 service records · memory only[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"button primary"[39m
+                [36m>[39m
+                  [0mLoad synthetic sample[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<details[39m
+                [33mclass[39m=[32m"details"[39m
+              [36m>[39m
+                [36m<summary>[39m
+                  [0mFile requirements & data handling[0m
+                [36m</summary>[39m
+                [36m<p>[39m
+                  [0mDemo: no file contents read, stored, uploaded or sent to a model. Refresh clears state. Real ZIP mode applies provisional 10 MiB compressed / 50 MiB expanded / 100-entry metadata preflight. Engine safety checks remain required.[0m
+                [36m</p>[39m
+              [36m</details>[39m
+            [36m</div>[39m
+          [36m</section>[39m
+          [36m<aside[39m
+            [33maria-label[39m=[32m"Workflow guidance"[39m
+            [33mclass[39m=[32m"guide"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-label[39m=[32m"Open Referral guide"[39m
+              [33mclass[39m=[32m"mascot"[39m
+              [33mrole[39m=[32m"img"[39m
+              [33mviewBox[39m=[32m"0 0 150 110"[39m
+            [36m>[39m
+              [36m<rect[39m
+                [33mfill[39m=[32m"#f9f9f9"[39m
+                [33mheight[39m=[32m"98"[39m
+                [33mrx[39m=[32m"27"[39m
+                [33mstroke[39m=[32m"#5bc19f"[39m
+                [33mstroke-width[39m=[32m"3"[39m
+                [33mwidth[39m=[32m"140"[39m
+                [33mx[39m=[32m"5"[39m
+                [33my[39m=[32m"5"[39m
+              [36m/>[39m
+              [36m<rect[39m
+                [33mfill[39m=[32m"#dbfce5"[39m
+                [33mheight[39m=[32m"76"[39m
+                [33mrx[39m=[32m"16"[39m
+                [33mstroke[39m=[32m"#5bc19f"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mwidth[39m=[32m"120"[39m
+                [33mx[39m=[32m"15"[39m
+                [33my[39m=[32m"17"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M16 32h118M111 24h6m5-3 6 6m0-6-6 6"[39m
+                [33mstroke[39m=[32m"#5bc19f"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+              [36m/>[39m
+              [36m<ellipse[39m
+                [33mcx[39m=[32m"60"[39m
+                [33mcy[39m=[32m"54"[39m
+                [33mfill[39m=[32m"#32856b"[39m
+                [33mrx[39m=[32m"4"[39m
+                [33mry[39m=[32m"7"[39m
+              [36m/>[39m
+              [36m<ellipse[39m
+                [33mcx[39m=[32m"90"[39m
+                [33mcy[39m=[32m"54"[39m
+                [33mfill[39m=[32m"#32856b"[39m
+                [33mrx[39m=[32m"4"[39m
+                [33mry[39m=[32m"7"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M70 71q5 12 10 0"[39m
+                [33mfill[39m=[32m"#32856b"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"speech"[39m
+            [36m>[39m
+              [0mStart with a small sample. Inspection comes before approval.[0m
+            [36m</div>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"guide-caption"[39m
+            [36m>[39m
+              [0mScripted demo guide[0m
+              [36m<br />[39m
+              [0mNo AI or model calls[0m
+            [36m</span>[39m
+          [36m</aside>[39m
+          [36m<section[39m
+            [33maria-label[39m=[32m"Output file"[39m
+            [33mclass[39m=[32m"panel"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"panel-heading"[39m
+            [36m>[39m
+              [36m<h2>[39m
+                [0mOutput file[0m
+              [36m</h2>[39m
+              [36m<span>[39m
+                [0mSample preview[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"panel-body"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"badge neutral"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                [36m>[39m
+                  [0m·[0m
+                [36m</span>[39m
+                [0m [0m
+                [0mNot approved[0m
+              [36m</span>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"muted"[39m
+              [36m>[39m
+                [0mIllustrative sample only. Demo paths are not an agreed HSDS profile. A preview does not establish full-dataset correctness.[0m
+              [36m</p>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"empty-preview"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                [36m>[39m
+                  [0m{ }[0m
+                [36m</span>[39m
+                [36m<h3>[39m
+                  [0mYour output will appear here[0m
+                [36m</h3>[39m
+                [36m<p>[39m
+                  [0mInspect the synthetic source to explore the sample. Nothing is uploaded.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<dl[39m
+                [33mclass[39m=[32m"context-list"[39m
+              [36m>[39m
+                [36m<div>[39m
+                  [36m<dt>[39m
+                    [0mSource[0m
+                  [36m</dt>[39m
+                  [36m<dd>[39m
+                    [0mNot selected[0m
+                  [36m</dd>[39m
+                [36m</div>[39m
+                [36m<div>[39m
+                  [36m<dt>[39m
+                    [0mMapping[0m
+                  [36m</dt>[39m
+                  [36m<dd>[39m
+                    [0mv[0m
+                    [0m1[0m
+                  [36m</dd>[39m
+                [36m</div>[39m
+                [36m<div>[39m
+                  [36m<dt>[39m
+                    [0mTarget contract[0m
+                  [36m</dt>[39m
+                  [36m<dd>[39m
+                    [0mdemo-contract-1 (not an agreed HSDS profile)[0m
+                  [36m</dd>[39m
+                [36m</div>[39m
+                [36m<div>[39m
+                  [36m<dt>[39m
+                    [0mRun[0m
+                  [36m</dt>[39m
+                  [36m<dd>[39m
+                    [0mNot run[0m
+                  [36m</dd>[39m
+                [36m</div>[39m
+              [36m</dl>[39m
+            [36m</div>[39m
+          [36m</section>[39m
+        [36m</div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"Approval scope and primary actions"[39m
+          [33mclass[39m=[32m"approval-bar"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<strong>[39m
+              [0mReview before you run[0m
+            [36m</strong>[39m
+            [36m<p>[39m
+              [0mSource[0m
+              [0m [0m
+              [0mnot selected[0m
+              [0m · Mapping v[0m
+              [0m1[0m
+              [0m · [0m
+              [0mdemo-contract-1 (not an agreed HSDS profile)[0m
+            [36m</p>[39m
+            [36m<span>[39m
+              [0m4[0m
+              [0m mapping decisions to review · [0m
+              [0m0[0m
+              [0m errors in[0m
+              [0m [0m
+              [0mno run yet[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"actions"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"button secondary"[39m
+              [33mdisabled[39m=[32m""[39m
+            [36m>[39m
+              [0mApprove mapping version[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Run transformation"[39m
+              [33mclass[39m=[32m"button primary"[39m
+              [33mdisabled[39m=[32m""[39m
+            [36m>[39m
+              [0mRun transformation[0m
+              [0m [0m
+              [0m→[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+        [36m<details[39m
+          [33mclass[39m=[32m"scenario-panel"[39m
+        [36m>[39m
+          [36m<summary>[39m
+            [0mDemo controls · explore failure & version states[0m
+          [36m</summary>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"scenario-body"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mfor[39m=[32m"scenario"[39m
+            [36m>[39m
+              [0mScenario for the next synthetic action[0m
+            [36m</label>[39m
+            [36m<select[39m
+              [33mid[39m=[32m"scenario"[39m
+            [36m>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"normal"[39m
+              [36m>[39m
+                [0mNormal fixture behavior[0m
+              [36m</option>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"model-timeout"[39m
+              [36m>[39m
+                [0mModel timeout · deterministic report remains[0m
+              [36m</option>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"model-malformed"[39m
+              [36m>[39m
+                [0mMalformed model output · no suggestion applied[0m
+              [36m</option>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"conflict"[39m
+              [36m>[39m
+                [0mVersion conflict · approval/run blocked[0m
+              [36m</option>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"partial"[39m
+              [36m>[39m
+                [0mPartial result · one unprocessed record[0m
+              [36m</option>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"system-failure"[39m
+              [36m>[39m
+                [0mSystem failure · checks not run[0m
+              [36m</option>[39m
+            [36m</select>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"actions"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button secondary"[39m
+                [33mdisabled[39m=[32m""[39m
+              [36m>[39m
+                [0mSimulate source version change[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button secondary"[39m
+              [36m>[39m
+                [0mSimulate target contract change[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button secondary"[39m
+              [36m>[39m
+                [0mReconnect synthetic workspace[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button secondary"[39m
+              [36m>[39m
+                [0mReset demo[0m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<p>[39m
+              [0mRefresh starts an empty workspace. Source, approvals, reports and files are never saved in browser storage. No account or server history is implied.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</details>[39m
+      [36m</main>[39m
+      [36m<footer[39m
+        [33mclass[39m=[32m"app-footer"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mBlueprint · Open Referral[0m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0mShared frontend scaffold · target contract & real validation pending[0m
+        [36m</span>[39m
+      [36m</footer>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/workflow/reducer.test.ts:512:19
+    510|     window.location.hash = "#workspace";
+    511|     fireEvent(window, new HashChangeEvent("hashchange"));
+    512|     expect(screen.getByRole("heading", { name: "Review & approve", lev…
+       |                   ^
+    513|     window.location.hash = "";
+    514|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/workflow/reducer.test.ts > integrated correctness regressions > does not show a rejected mapping destination in a current approved sample
+AssertionError: expected '{\n  "organization": {\n    "name": "…' not to contain '"name": "Food pantry"'
+
+- Expected
++ Received
+
+- "name": "Food pantry"
++ {
++   "organization": {
++     "name": "Harbor Resource Center"
++   },
++   "service": {
++     "name": "Food pantry",
++     "organization_id": "demo-org-1"
++   },
++   "phone": {
++     "number": "201-555-01"
++   },
++   "service_at_location": [
++     {
++       "service_id": "S-001",
++       "location_id": "L-01"
++     },
++     {
++       "service_id": "S-001",
++       "location_id": "L-02"
++     }
++   ]
++ }
+
+ ❯ src/workflow/reducer.test.ts:520:24
+    518|     const document = new DOMParser().parseFromString(html, "text/html"…
+    519|     const sample = document.querySelector("pre")?.textContent;
+    520|     expect(sample).not.toContain('"name": "Food pantry"');
+       |                        ^
+    521|   });
+    522|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/workflow/reducer.test.ts > integrated correctness regressions > does not call earlier findings resolved when the new run failed before checks
+AssertionError: expected '<section class="panel" aria-label="De…' not to contain 'Resolved: '
+
+Expected: "Resolved: "
+Received: "<section class="panel" aria-label="Deterministic report"><div class="panel-heading"><h2>Deterministic report</h2><span>demo-run-2</span></div><div class="panel-body"><p>The report stays usable without a model. Findings come from the stated check layer; factual and semantic accuracy remain separate.</p><label for="report-run">Report version</label><select id="report-run"><option value="" disabled="">No report selected</option><option value="demo-run-1">demo-run-1 · source v1 / mapping v5 · completed</option><option value="demo-run-2" selected="">demo-run-2 · source v1 / mapping v5 · failed</option></select><dl class="context-list"><div><dt>Source</dt><dd>v1</dd></div><div><dt>Mapping</dt><dd>v5</dd></div><div><dt>Target contract</dt><dd>demo-contract-1 (not an agreed HSDS profile)</dd></div><div><dt>Run</dt><dd>demo-run-2</dd></div></dl><div class="finding-totals"><span class="badge error"><span aria-hidden="true">!</span> 0 errors</span><span class="badge warning"><span aria-hidden="true">·</span> 0 warnings</span><span class="badge neutral"><span aria-hidden="true">·</span> 0 informational</span></div><div class="finding-list" aria-label="Findings"></div><p class="notice">No diagnostic evidence is available. System failure prevented checks.</p><section class="checks" aria-label="Check layers"><h3>What was checked</h3><div class="check-row"><div><strong>Synthetic deterministic checks</strong><p>System failure prevented checks; no data-validity conclusion.</p></div><span class="badge not run"><span aria-hidden="true">·</span> not run</span></div></section><section class="comparison" aria-label="Rerun comparison"><h3>demo-run-1 → demo-run-2</h3><div class="comparison-counts"><div><strong>2</strong>Resolved</div><div><strong>0</strong>Remaining</div><div><strong>0</strong>New</div><div><strong>1</strong>Uncertain matches</div></div><p>Only unique stable fixture identities establish resolved/remaining findings. Missing identities stay uncertain, never silently cleared.</p><p>Resolved: DEMO_PHONE_LENGTH</p><p>Resolved: DEMO_RELATION_REVIEW</p></section></div></section>"
+
+ ❯ src/workflow/reducer.test.ts:526:22
+    524|     const state = finished(reducer(finished(), { type: "SET_SCENARIO",…
+    525|     const html = renderToStaticMarkup(createElement(ReviewScreen, { st…
+    526|     expect(html).not.toContain("Resolved: ");
+       |                      ^
+    527|   });
+    528|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/workflow/reducer.test.ts > integrated correctness regressions > does not call earlier findings resolved when the new report is partial
+AssertionError: expected '<section class="panel" aria-label="De…' not to contain 'Resolved: '
+
+Expected: "Resolved: "
+Received: "<section class="panel" aria-label="Deterministic report"><div class="panel-heading"><h2>Deterministic report</h2><span>demo-run-2</span></div><div class="panel-body"><p>The report stays usable without a model. Findings come from the stated check layer; factual and semantic accuracy remain separate.</p><label for="report-run">Report version</label><select id="report-run"><option value="" disabled="">No report selected</option><option value="demo-run-1">demo-run-1 · source v1 / mapping v5 · completed</option><option value="demo-run-2" selected="">demo-run-2 · source v1 / mapping v6 · partial</option></select><dl class="context-list"><div><dt>Source</dt><dd>v1</dd></div><div><dt>Mapping</dt><dd>v6</dd></div><div><dt>Target contract</dt><dd>demo-contract-1 (not an agreed HSDS profile)</dd></div><div><dt>Run</dt><dd>demo-run-2</dd></div></dl><div class="finding-totals"><span class="badge error"><span aria-hidden="true">!</span> 0 errors</span><span class="badge warning"><span aria-hidden="true">·</span> 2 warnings</span><span class="badge neutral"><span aria-hidden="true">·</span> 1 informational</span></div><div class="finding-list" aria-label="Findings"><button class="finding selected" aria-pressed="true"><span class="badge warning"><span aria-hidden="true">·</span> warning</span><strong>DEMO_RELATION_REVIEW</strong><span>Confirm that both services operate at the shared location.</span></button><button class="finding " aria-pressed="false"><span class="badge info"><span aria-hidden="true">·</span> info</span><strong>DEMO_PROVENANCE_UNKNOWN</strong><span>Source evidence and matching identity were not supplied for this finding.</span></button><button class="finding " aria-pressed="false"><span class="badge warning"><span aria-hidden="true">·</span> warning</span><strong>DEMO_HOURS_REVIEW</strong><span>Confirm operating hours before sharing this service externally.</span></button></div><section class="evidence" aria-label="Selected diagnostic evidence"><h3>Evidence &amp; location</h3><dl class="evidence-list"><div><dt>Check layer</dt><dd>Synthetic deterministic checks</dd></div><div><dt>Code</dt><dd>DEMO_RELATION_REVIEW</dd></div><div><dt>Severity</dt><dd>warning</dd></div><div><dt>Stage</dt><dd>Check output</dd></div><div><dt>Rule</dt><dd>Fixture review requires steward confirmation of shared location</dd></div><div><dt>Entity / record</dt><dd>service_at_location / S-002</dd></div><div><dt>Source file</dt><dd>services.csv</dd></div><div><dt>Source row</dt><dd>3</dd></div><div><dt>Source field</dt><dd>location_ids</dd></div><div><dt>Target path</dt><dd>service_at_location.location_id</dd></div><div><dt>Evidence</dt><dd>L-02 is shared by Food pantry and Housing advice</dd></div></dl></section><section class="checks" aria-label="Check layers"><h3>What was checked</h3><div class="check-row"><div><strong>Synthetic deterministic checks</strong><p>Only authored fixture rules ran. Warnings and unknown evidence remain reviewable.</p></div><span class="badge passed"><span aria-hidden="true">✓</span> passed</span></div><div class="check-row"><div><strong>HSDS schema</strong><p>No agreed HSDS release/profile or real validator is connected.</p></div><span class="badge not run"><span aria-hidden="true">·</span> not run</span></div><div class="check-row"><div><strong>Receiving API</strong><p>No receiving interface has been contacted.</p></div><span class="badge unavailable"><span aria-hidden="true">·</span> unavailable</span></div><div class="check-row"><div><strong>Semantic accuracy</strong><p>Requires domain review; transformation is not correctness evidence.</p></div><span class="badge not run"><span aria-hidden="true">·</span> not run</span></div></section><section class="comparison" aria-label="Rerun comparison"><h3>demo-run-1 → demo-run-2</h3><div class="comparison-counts"><div><strong>1</strong>Resolved</div><div><strong>1</strong>Remaining</div><div><strong>1</strong>New</div><div><strong>2</strong>Uncertain matches</div></div><p>Only unique stable fixture identities establish resolved/remaining findings. Missing identities stay uncertain, never silently cleared.</p><p>Resolved: DEMO_PHONE_LENGTH</p><p>New: DEMO_HOURS_REVIEW</p></section></div></section>"
+
+ ❯ src/workflow/reducer.test.ts:533:22
+    531|     state = finished(state);
+    532|     const html = renderToStaticMarkup(createElement(ReviewScreen, { st…
+    533|     expect(html).not.toContain("Resolved: ");
+       |                      ^
+    534|   });
+    535|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/workflow/reducer.test.ts > integrated correctness regressions > deduplicates repeated clarification submissions instead of creating extra versions
+AssertionError: expected 3 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ src/workflow/reducer.test.ts:539:37
+    537|     const state = act(initialState, { type: "LOAD_SOURCE" }, { type: "…
+    538|     const repeated = reducer(state, { type: "CLARIFY", id: "phone", an…
+    539|     expect(repeated.mappingVersion).toBe(state.mappingVersion);
+       |                                     ^
+    540|   });
+    541|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/workflow/reducer.test.ts > integrated correctness regressions > deduplicates repeated correction revision submissions
+AssertionError: expected 3 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ src/workflow/reducer.test.ts:545:41
+    543|     const state = reducer(finished(), { type: "REVISE_CORRECTION", aft…
+    544|     const repeated = reducer(state, { type: "REVISE_CORRECTION", after…
+    545|     expect(repeated.correction.version).toBe(state.correction.version);
+       |                                         ^
+    546|   });
+    547| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 23 passed (29)
+   Start at  10:29:30
+   Duration  993ms (transform 165ms, setup 102ms, import 179ms, tests 241ms, environment 357ms)

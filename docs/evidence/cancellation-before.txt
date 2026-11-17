@@ -1,0 +1,90 @@
+
+> hsds-transformer-ui@0.0.1 test
+> vitest run src/integration/adapter.test.ts src/integration/RealZipFlow.test.tsx
+
+
+ RUN  v4.0.18 /Users/lbrevoort/dev/blueprint/hsds-transformer-ui-scaffold
+
+ ❯ src/integration/adapter.test.ts (17 tests | 1 failed) 38ms
+     ✓ bounds streamed artifact bytes even when content-length understates the body 23ms
+     ✓ classifies infrastructure/auth/rate-limit HTTP401 as system failure, not invalid source data 1ms
+     ✓ classifies infrastructure/auth/rate-limit HTTP403 as system failure, not invalid source data 1ms
+     ✓ classifies infrastructure/auth/rate-limit HTTP404 as system failure, not invalid source data 1ms
+     ✓ classifies infrastructure/auth/rate-limit HTTP408 as system failure, not invalid source data 0ms
+     ✓ classifies infrastructure/auth/rate-limit HTTP429 as system failure, not invalid source data 0ms
+     ✓ posts zip_file multipart and accepts HTTP201 ZIP with safely decoded logs 1ms
+     ✓ uses a separate health request with no implication of transformation success 0ms
+     ✓ classifies HTTP422 as invalid-data and retains text evidence 1ms
+     ✓ classifies HTTP500 as system-failure and retains text evidence 1ms
+     ✓ does not retry disconnected requests or acknowledge cancellation 0ms
+     ✓ rejects a truncated ZIP signature instead of presenting transformation completion 0ms
+     ✓ rejects an oversized advertised artifact before buffering it 0ms
+     ✓ rejects unexpected/malformed successful responses 0ms
+     ✓ rejects unexpected/malformed successful responses 0ms
+     ✓ rejects unexpected/malformed successful responses 0ms
+   × ignores completion if aborted during asynchronous ZIP envelope inspection 6ms
+ ❯ src/integration/RealZipFlow.test.tsx (5 tests | 1 failed) 192ms
+     ✓ inspects before explicit upload; rejects repeated submit and preserves honest validation labels 102ms
+     ✓ stopping the browser request shows requested, never acknowledged server cancellation 31ms
+     ✓ does not show stale request completion after leaving real mode 16ms
+     ✓ leaves malformed selection unusable, with no POST 10ms
+   × never publishes late completion after the user stops waiting 32ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/RealZipFlow.test.tsx > never publishes late completion after the user stops waiting
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Blob {},
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/integration/RealZipFlow.test.tsx:158:34
+    156|  finish({blob:new Blob(["synthetic"]),logs:null});
+    157|  await waitFor(() => expect(screen.queryByRole("link",{name:"Download …
+    158|  expect(URL.createObjectURL).not.toHaveBeenCalled();
+       |                                  ^
+    159|  expect(screen.getByText(/status unknown|status is unknown/i)).toBeTru…
+    160| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/integration/adapter.test.ts > ignores completion if aborted during asynchronous ZIP envelope inspection
+AssertionError: promise resolved "{ …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "blob": GatedBlob {
++     Symbol(kHandle): Blob {},
++     Symbol(kLength): 22,
++     Symbol(kType): "application/zip",
++   },
++   "logs": null,
+  }
+
+ ❯ src/integration/adapter.test.ts:184:23
+    182|   abort.abort();
+    183|   release();
+    184|   await expect(request).rejects.toMatchObject({kind: 'unknown'});
+       |                       ^
+    185| });
+    186|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 20 passed (22)
+   Start at  10:38:41
+   Duration  830ms (transform 107ms, setup 228ms, import 102ms, tests 230ms, environment 387ms)

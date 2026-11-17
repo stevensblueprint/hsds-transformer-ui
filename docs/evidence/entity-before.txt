@@ -1,0 +1,33 @@
+
+> hsds-transformer-ui@0.0.1 test
+> vitest run src/workflow/reducer.test.ts
+
+
+ RUN  v4.1.12 /Users/lbrevoort/dev/blueprint/hsds-transformer-ui-scaffold
+
+ ❯ src/workflow/reducer.test.ts (30 tests | 1 failed) 115ms
+   × keeps target entity aligned with revised full paths and intentional omission 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/workflow/reducer.test.ts > keeps target entity aligned with revised full paths and intentional omission
+AssertionError: expected 'phone' to be 'service' // Object.is equality
+
+Expected: "service"
+Received: "phone"
+
+ ❯ src/workflow/reducer.test.ts:592:63
+    590|  const state = act(initialState, {type:"LOAD_SOURCE"}, {type:"INSPECT_…
+    591|  const revised = reducer(state, {type:"REVISE_MAPPING", id:"phone", ta…
+    592|  expect(revised.mappings.find(row=>row.id==="phone")?.entity).toBe("se…
+       |                                                               ^
+    593|  const omitted = reducer(state, {type:"MARK_UNMAPPED", id:"organizatio…
+    594|  expect(omitted.mappings.find(row=>row.id==="organization")?.entity).t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 29 passed (30)
+   Start at  11:21:17
+   Duration  795ms (transform 179ms, setup 111ms, import 188ms, tests 115ms, environment 268ms)
