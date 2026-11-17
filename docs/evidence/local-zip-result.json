@@ -1,0 +1,16 @@
+{
+  "backend_commit": "38fa7d0865f4bdfb63d9a366ec14c37f9626ee05",
+  "endpoint": "http://localhost:8000/transform",
+  "browser_origin": "http://localhost:5173",
+  "observed_http_status": 201,
+  "download_bytes": 209,
+  "zip_crc": "passed",
+  "files": ["organization_synthetic-1.json"],
+  "asserted_organization": {
+    "id": "synthetic-1",
+    "name": "Synthetic Harbor Center"
+  },
+  "hsds_schema": "not run",
+  "semantic_accuracy": "not established",
+  "fixture": "invented synthetic.csv + synthetic_organization_mapping.csv"
+}

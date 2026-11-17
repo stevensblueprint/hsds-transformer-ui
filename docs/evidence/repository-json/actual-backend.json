@@ -1,0 +1,9 @@
+{
+  "backend_revision": "6486294a7aac8fbce1bb4e021fe6e810c1f335df",
+  "command": "POST /transform multipart zip_file=repository-json.zip input_format=json",
+  "status_line": "HTTP/1.1 201 Created",
+  "artifact_sha256": "912a30844cd3860224da2adeac10351dede02f918a243c58c6ad3dba26cb6c9c",
+  "zip_crc_check": "passed",
+  "files": ["organization_1.json"],
+  "environment": "macOS Python 3.14 with installed dependencies; source exported from pinned main; not a clean locked backend install"
+}

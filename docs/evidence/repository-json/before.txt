@@ -1,0 +1,55 @@
+
+> hsds-transformer-ui@0.0.1 test
+> vitest run src/integration/adapter.test.ts src/integration/zip.test.ts
+
+
+ RUN  v4.1.12 /Users/lbrevoort/dev/blueprint/hsds-transformer-ui-scaffold
+
+ ❯ src/integration/zip.test.ts (11 tests | 1 failed) 16ms
+   × accepts JSON archive entries only when JSON input format is explicit 4ms
+ ❯ src/integration/adapter.test.ts (18 tests | 1 failed) 36ms
+   × sends JSON input_format with the existing ZIP multipart boundary 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/adapter.test.ts > sends JSON input_format with the existing ZIP multipart boundary
+AssertionError: expected null to be 'json' // Object.is equality
+
+- Expected:
+"json"
+
++ Received:
+null
+
+ ❯ src/integration/adapter.test.ts:210:58
+    208|  vi.stubGlobal("fetch",fetch);
+    209|  await transformZip(file(),signal(),"json");
+    210|  expect(fetch.mock.calls[0][1].body.get("input_format")).toBe("json");
+       |                                                          ^
+    211|  expect(fetch.mock.calls[0][1].body.get("zip_file").name).toBe("fixtur…
+    212| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/integration/zip.test.ts > accepts JSON archive entries only when JSON input format is explicit
+AssertionError: promise rejected "Error: Unsupported archive entry. This in…" instead of resolving
+ ❯ src/integration/zip.test.ts:98:54
+     96|
+     97| it("accepts JSON archive entries only when JSON input format is explic…
+     98|  await expect(inspectZip(archive("orgs.json"),"json")).resolves.toMatc…
+       |                                                      ^
+     99|  await expect(inspectZip(archive("orgs.json"))).rejects.toThrow("Unsup…
+    100| });
+
+Caused by: Error: Unsupported archive entry. This integration accepts source CSVs and mapping CSVs only.
+ ❯ inspectZip src/integration/zip.ts:144:15
+ ❯ src/integration/zip.test.ts:98:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 27 passed (29)
+   Start at  11:39:11
+   Duration  370ms (transform 120ms, setup 343ms, import 84ms, tests 52ms, environment 0ms)
+
