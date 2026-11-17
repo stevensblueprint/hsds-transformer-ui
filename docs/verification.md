@@ -55,3 +55,7 @@ Separate implementation reviews reproduced preview/version/comparison/keyboard a
 ## Dependency audit
 
 The initial candidate introduced a Vitest advisory on top of baseline tooling debt. Compatible updates pin Vitest4.1.12 and Vite7.3.7; TypeScript ESLint remains8.x. npm10 optional-peer resolution crashed, so the supported Node22.23.5/npm11.19.0 combination is pinned consistently for development and Build CI. No force/legacy-peer bypass or security setting was used. Final full/production audit results and exact versions are retained under `evidence/dependency-audit-*.json`. The separate production deployment workflow was deliberately not altered and still uses its existing Node20 configuration; rollout/toolchain alignment remains a release handoff.
+
+## Hosted runner compatibility
+
+The first hosted build completed install/lint/format/typecheck/tests/build, then failed Chromium installation because `ubuntu-latest` selected Ubuntu26.04, unsupported by the pinned Playwright1.58.2. [Exact failing step](evidence/ci-before.txt) is retained. Build CI is now pinned to supported `ubuntu-24.04`; deployment workflow remains unchanged. Final hosted status and exact head are recorded in the draft PR, separately from local evidence.
