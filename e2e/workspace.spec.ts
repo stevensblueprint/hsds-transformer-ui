@@ -6,364 +6,248 @@ import {
   type Page,
   type TestInfo,
 } from "@playwright/test";
+import { deflateRawSync } from "node:zlib";
+import { readFileSync } from "node:fs";
 
-test.setTimeout(90_000);
+test.setTimeout(90000);
 const button = (page: Page, name: string) =>
   page.getByRole("button", { name, exact: true });
 const nav = (page: Page, name: string) =>
   page
     .getByRole("navigation", { name: "Transformation workflow" })
     .getByRole("link", { name, exact: true });
-const runButton = (page: Page) =>
-  page.getByRole("button", { name: /^Run transformation(?: again)?$/ });
-const mapping = (page: Page, id: string) =>
-  page.getByRole("article", { name: `Review ${id} mapping`, exact: true });
 async function go(page: Page, step: string) {
   await nav(page, step).click();
   await expect(nav(page, step)).toHaveAttribute("aria-current", "step");
 }
-async function controls(page: Page) {
-  const details = page.locator("details.scenario-panel");
-  if (!(await details.evaluate((element) => element.hasAttribute("open"))))
-    await details.locator("summary").click();
-}
-async function scenario(page: Page, value: string) {
-  await controls(page);
-  await page
-    .getByLabel("Scenario for the next synthetic action")
-    .selectOption(value);
-}
-async function inspectSyntheticSource(page: Page) {
-  await button(page, "Load synthetic sample").click();
+async function selected(page: Page) {
+  await page.goto("/");
+  await button(page, "Use repository JSON").click();
   await button(page, "Inspect source").click();
 }
-async function approveRows(page: Page, demonstrateRevision = false) {
+async function approved(page: Page) {
+  await selected(page);
   await go(page, "Mapping");
-  if (demonstrateRevision) {
-    await button(page, "Reject organization").click();
-    await expect(mapping(page, "organization")).toContainText("rejected");
-    await button(page, "Revise organization").click();
-    await expect(
-      mapping(page, "organization").getByLabel(
-        "Full target paths (one per line)",
-      ),
-    ).toBeFocused();
-    await mapping(page, "organization")
-      .getByLabel("Full target paths (one per line)")
-      .fill("organization.name\nservice.organization_id");
-    await mapping(page, "organization")
-      .getByRole("button", { name: "Save mapping revision", exact: true })
-      .click();
-    await expect(button(page, "Revise organization")).toBeFocused();
-  }
-  await button(page, "Approve organization").click();
-  await button(page, "Approve service").click();
-  await page
-    .getByLabel("Clarification answer", { exact: true })
-    .fill(
-      "This is an invented public service contact, not an internal staff number.",
-    );
-  await button(page, "Save clarification").click();
-  await expect(mapping(page, "phone")).toContainText("proposed");
-  await expect(button(page, "Approve mapping version")).toBeDisabled();
-  await button(page, "Approve phone").click();
-  await button(page, "Revise locations").click();
-  await mapping(page, "locations")
-    .getByLabel("Supported demo transformation")
-    .selectOption("Split semicolon list; preserve source links");
-  await mapping(page, "locations")
-    .getByRole("button", { name: "Save mapping revision", exact: true })
-    .click();
-  await expect(mapping(page, "locations")).toContainText("one to many");
-  await button(page, "Approve locations").click();
-  await expect(button(page, "Approve mapping version")).toBeEnabled();
-}
-async function approvedWorkspace(page: Page) {
-  await page.goto("/");
-  await inspectSyntheticSource(page);
-  await approveRows(page);
-  await button(page, "Approve mapping version").click();
-}
-async function completeRun(page: Page) {
-  await runButton(page).click();
-  for (let index = 0; index < 4; index++)
-    await button(page, "Advance simulated stage").click();
+  await button(page, "Approve supplied mapping").click();
+  await go(page, "Run");
 }
 async function capture(page: Page, info: TestInfo, step: string) {
-  const viewport = info.project.name.startsWith("mobile")
-    ? "mobile"
-    : "desktop";
   await page.evaluate(async () => {
     await document.fonts.ready;
     window.scrollTo(0, 0);
-    await new Promise(requestAnimationFrame);
   });
   await page.screenshot({
-    path: `docs/evidence/after-${viewport}-${step}.png`,
+    path: `docs/evidence/repository-json/${info.project.name}-${step}.png`,
     fullPage: true,
   });
 }
+// Deliberately test-only HTTP fixture. Separate evidence records the real backend round trip.
+function outputZip() {
+  const name = Buffer.from("organization_1.json");
+  const data = Buffer.from(
+    JSON.stringify({
+      id: "1",
+      name: "Test Organization",
+      description: "<img src=x onerror=alert(1)>",
+    }),
+  );
+  const body = deflateRawSync(data);
+  const local = 30 + name.length + body.length;
+  const central = 46 + name.length;
+  const bytes = Buffer.alloc(local + central + 22);
+  bytes.writeUInt32LE(0x04034b50, 0);
+  bytes.writeUInt16LE(8, 8);
+  bytes.writeUInt32LE(body.length, 18);
+  bytes.writeUInt32LE(data.length, 22);
+  bytes.writeUInt16LE(name.length, 26);
+  name.copy(bytes, 30);
+  body.copy(bytes, 30 + name.length);
+  bytes.writeUInt32LE(0x02014b50, local);
+  bytes.writeUInt16LE(8, local + 10);
+  bytes.writeUInt32LE(body.length, local + 20);
+  bytes.writeUInt32LE(data.length, local + 24);
+  bytes.writeUInt16LE(name.length, local + 28);
+  name.copy(bytes, local + 46);
+  const end = local + central;
+  bytes.writeUInt32LE(0x06054b50, end);
+  bytes.writeUInt16LE(1, end + 8);
+  bytes.writeUInt16LE(1, end + 10);
+  bytes.writeUInt32LE(central, end + 12);
+  bytes.writeUInt32LE(local, end + 16);
+  return bytes;
+}
+async function mockSuccess(page: Page) {
+  await page.route("**/transform", (route) =>
+    route.fulfill({
+      status: 201,
+      contentType: "application/zip",
+      body: outputZip(),
+    }),
+  );
+}
 
-test("full review, correction, rerun and identified export preserve the earlier source and report", async ({
+test("repository JSON replaces the synthetic entry and real upload stays separate from inspection/review", async ({
   page,
 }, info) => {
-  await page.goto("/");
-  await inspectSyntheticSource(page);
-  await capture(page, info, "source");
-  await approveRows(page, true);
-  await capture(page, info, "mapping");
-  await button(page, "Approve mapping version").dblclick();
-  await expect(runButton(page)).toBeEnabled();
-  await runButton(page).dblclick();
-  for (let index = 0; index < 4; index++)
-    await button(page, "Advance simulated stage").click();
-  await go(page, "Review");
-  await expect(
-    page.getByLabel("Report version").locator("option:not([disabled])"),
-  ).toHaveCount(1);
-  await page.getByRole("button", { name: /DEMO_PHONE_LENGTH/ }).click();
-  const evidence = page.getByRole("region", {
-    name: "Selected diagnostic evidence",
+  let posts = 0;
+  await page.route("**/transform", (route) => {
+    posts++;
+    expect(route.request().postDataBuffer()?.toString()).toContain(
+      'name="input_format"\r\n\r\njson',
+    );
+    expect(route.request().postDataBuffer()?.toString()).toContain(
+      'filename="repository-json.zip"',
+    );
+    return route.fulfill({
+      status: 201,
+      contentType: "application/zip",
+      body: outputZip(),
+    });
   });
-  await expect(evidence).toContainText("services.csv");
-  await expect(evidence).toContainText("phone.number");
-  await expect(evidence).toContainText("201-555-01 → 8 digits");
-  await page.getByRole("button", { name: /DEMO_PROVENANCE_UNKNOWN/ }).click();
-  await expect(evidence).toContainText("Unavailable — not supplied");
-  await capture(page, info, "review");
-  await button(page, "Reject correction").click();
-  await expect(button(page, "Approve correction version")).toBeDisabled();
-  await button(page, "Revise correction").click();
-  await expect(page.getByLabel("Revised value", { exact: true })).toBeFocused();
-  await page.getByLabel("Revised value", { exact: true }).fill("201-555-0101");
-  await page
-    .getByLabel("Reason for revision", { exact: true })
-    .fill("Reviewed authored fixture value; preserve original source.");
-  await button(page, "Save correction revision").click();
-  await expect(button(page, "Revise correction")).toBeFocused();
-  await button(page, "Approve correction version").click();
-  await expect(page.getByText(/Approval stale/).first()).toBeVisible();
-  await expect(runButton(page)).toBeDisabled();
-  await button(page, "Approve mapping version").click();
-  await completeRun(page);
-  await go(page, "Review");
-  const comparison = page.getByRole("region", { name: "Rerun comparison" });
-  await expect(comparison).toContainText("Resolved: DEMO_PHONE_LENGTH");
-  await expect(comparison).toContainText("New: DEMO_HOURS_REVIEW");
-  await expect(comparison).toContainText("Uncertain matches");
+  await selected(page);
   await expect(
-    page.getByLabel("Report version").locator("option:not([disabled])"),
-  ).toHaveCount(2);
-  await page.getByLabel("Report version").selectOption("demo-run-1");
-  await expect(
-    page.getByRole("button", { name: /DEMO_PHONE_LENGTH/ }),
-  ).toBeVisible();
-  await page.getByLabel("Report version").selectOption("demo-run-2");
-  await go(page, "Export");
-  await capture(page, info, "export");
-  const downloadEvent = page.waitForEvent("download");
-  await button(page, "Download simulated report").click();
-  const download = await downloadEvent;
-  expect(download.suggestedFilename()).toBe("demo-run-2-synthetic-report.json");
-  const stream = await download.createReadStream();
-  const chunks: Buffer[] = [];
-  for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
-  const artifact = JSON.parse(Buffer.concat(chunks).toString());
-  expect(artifact.simulated).toBe(true);
-  expect(artifact.run.id).toBe("demo-run-2");
-  expect(artifact.run.parentRunId).toBe("demo-run-1");
-  expect(artifact.run.checks).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({ name: "HSDS schema", status: "not run" }),
-    ]),
+    page.getByText("Load synthetic sample", { exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByLabel("Source JSON preview")).toContainText(
+    "<p>Clean Me</p>",
   );
-  await button(page, "Simulate artifact expiry").click();
-  await expect(button(page, "Download simulated report")).toBeDisabled();
+  await capture(page, info, "source");
+  await go(page, "Mapping");
   await expect(
-    page.getByText(/Download unavailable: artifact expired/),
+    page.getByText("organization.phones[].number", { exact: true }),
   ).toBeVisible();
-  await go(page, "Source");
+  await button(page, "Reject supplied mapping").click();
+  await go(page, "Run");
+  await expect(button(page, "Run JSON transformation")).toBeDisabled();
+  await go(page, "Mapping");
+  await button(page, "Approve supplied mapping").click();
+  expect(posts).toBe(0);
+  await capture(page, info, "mapping");
+  await go(page, "Run");
+  await button(page, "Run JSON transformation").dblclick();
+  await expect(page.getByLabel("Returned JSON preview")).toContainText(
+    "Test Organization",
+  );
+  await expect(page.getByLabel("Returned JSON preview")).toContainText(
+    "<img src=x onerror=alert(1)>",
+  );
+  expect(await page.locator('img[src="x"]').count()).toBe(0);
+  expect(posts).toBe(1);
+  await expect(page.getByRole("status")).toContainText("HTTP 201");
+  await capture(page, info, "review-mocked-transport");
+  await go(page, "Export");
+  await expect(page.getByLabel("Check layers")).toContainText("not run");
+  const download = page.waitForEvent("download");
+  await page
+    .getByRole("link", { name: "Download transformed ZIP", exact: true })
+    .click();
+  expect((await download).suggestedFilename()).toBe(
+    "repository-json-output.zip",
+  );
+  await page.reload();
   await expect(
-    page.getByRole("region", { name: "Source preview table" }),
-  ).toContainText("201-555-01");
+    page.getByRole("link", { name: "Download transformed ZIP", exact: true }),
+  ).toHaveCount(0);
+  await go(page, "Run");
+  await expect(button(page, "Run JSON transformation")).toBeDisabled();
+  expect(
+    await page.evaluate(() => [localStorage.length, sessionStorage.length]),
+  ).toEqual([0, 0]);
 });
 
-test("synthetic mode stays local and discards source and approvals on reload", async ({
+test("invalid input, system failure and disconnected outcomes remain distinct with bounded explicit retry", async ({
   page,
 }) => {
-  const serviceRequests: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (
-      url.origin !== "http://127.0.0.1:5173" ||
-      /\/(health|transform)(\/|$)/.test(url.pathname)
-    )
-      serviceRequests.push(`${request.method()} ${url.origin}${url.pathname}`);
+  let posts = 0;
+  await page.route("**/transform", (route) => {
+    posts++;
+    if (posts === 3) return route.abort("failed");
+    return route.fulfill({
+      status: posts === 1 ? 422 : 500,
+      contentType: "application/json",
+      body: JSON.stringify({
+        detail: posts === 1 ? "Bad mapping" : "Worker unavailable",
+      }),
+    });
   });
-  await approvedWorkspace(page);
-  await completeRun(page);
-  await scenario(page, "model-timeout");
+  await approved(page);
+  await button(page, "Run JSON transformation").click();
+  await expect(page.getByRole("status")).toContainText("HTTP 422");
+  await expect(page.getByText("invalid-data", { exact: true })).toBeVisible();
+  await button(page, "Retry JSON transformation").click();
+  await expect(page.getByRole("status")).toContainText("HTTP 500");
+  await expect(page.getByText("system-failure", { exact: true })).toBeVisible();
+  await button(page, "Retry JSON transformation").click();
+  await expect(page.getByRole("status")).toContainText("unknown");
+  await expect(button(page, "Retry JSON transformation")).toBeDisabled();
+  expect(posts).toBe(3);
+});
+
+test("stopping and switching inputs discard late responses without cancellation acknowledgement", async ({
+  page,
+}) => {
+  let release: (() => void) | undefined;
+  let started = false;
+  await page.route("**/transform", async (route) => {
+    started = true;
+    await new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await route
+      .fulfill({
+        status: 201,
+        contentType: "application/zip",
+        body: outputZip(),
+      })
+      .catch(() => undefined);
+  });
+  await approved(page);
+  await button(page, "Run JSON transformation").click();
+  await expect.poll(() => started).toBe(true);
+  await button(page, "Stop waiting").click();
+  await expect(page.getByRole("status")).toContainText(
+    "cancellation is not acknowledged",
+  );
+  release?.();
   await go(page, "Review");
   await expect(
-    page.getByRole("button", { name: /DEMO_PHONE_LENGTH/ }),
-  ).toBeVisible();
-  await scenario(page, "model-malformed");
-  await expect(
-    page.getByRole("button", { name: /DEMO_PHONE_LENGTH/ }),
-  ).toBeVisible();
-  expect(
-    await page.evaluate(() => ({
-      local: localStorage.length,
-      session: sessionStorage.length,
-    })),
-  ).toEqual({ local: 0, session: 0 });
-  await page.reload();
-  await go(page, "Source");
-  await expect(button(page, "Load synthetic sample")).toBeEnabled();
+    page.getByRole("link", { name: "Download transformed ZIP", exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole("radio", { name: "ZIP upload", exact: true }).check();
+  await page
+    .getByRole("radio", { name: "Repository JSON", exact: true })
+    .check();
   await go(page, "Run");
-  await expect(runButton(page)).toBeDisabled();
-  expect(serviceRequests).toEqual([]);
+  await expect(button(page, "Run JSON transformation")).toBeDisabled();
 });
 
-test("workflow history and keyboard focus remain navigable without false approval", async ({
+test("five steps support keyboard, labels, dark preference and 320px reflow", async ({
   page,
-}) => {
+}, info) => {
+  await mockSuccess(page);
   await page.goto("/");
-  await expect(
-    page.getByRole("heading", {
-      name: "Bring your data into focus",
-      exact: true,
-    }),
-  ).toBeFocused();
-  await button(page, "Load synthetic sample").focus();
-  await page.keyboard.press("Enter");
-  await button(page, "Inspect source").focus();
-  await page.keyboard.press("Enter");
-  await nav(page, "Mapping").focus();
-  await page.keyboard.press("Enter");
+  await keyboardActivate(page, button(page, "Use repository JSON"));
+  await keyboardActivate(page, button(page, "Inspect source"));
+  await keyboardActivate(page, nav(page, "Mapping"));
   await expect(
     page.getByRole("heading", { name: "Review & approve", exact: true }),
   ).toBeFocused();
-  await go(page, "Run");
-  await page.goBack();
-  await expect(nav(page, "Mapping")).toHaveAttribute("aria-current", "step");
-  await page.goForward();
-  await expect(nav(page, "Run")).toHaveAttribute("aria-current", "step");
-  await expect(runButton(page)).toBeDisabled();
-  await button(page, "Workflow help").focus();
-  await page.keyboard.press("Enter");
-  await button(page, "Close help").focus();
-  await page.keyboard.press("Enter");
-  await expect(button(page, "Workflow help")).toBeFocused();
-  await go(page, "Mapping");
-  await button(page, "Revise organization").focus();
-  await page.keyboard.press("Enter");
-  await expect(
-    mapping(page, "organization").getByLabel(
-      "Full target paths (one per line)",
-    ),
-  ).toBeFocused();
-  await button(page, "Cancel revision").focus();
-  await page.keyboard.press("Enter");
-  await expect(button(page, "Revise organization")).toBeFocused();
-});
-
-test("source and target changes invalidate approval and conflicts cannot create a run", async ({
-  page,
-}) => {
-  await approvedWorkspace(page);
-  await controls(page);
-  await button(page, "Simulate target contract change").click();
-  await expect(runButton(page)).toBeDisabled();
-  for (const id of ["organization", "service", "phone", "locations"])
-    await button(page, `Approve ${id}`).click();
-  await scenario(page, "conflict");
-  await button(page, "Approve mapping version").click();
-  await expect(
-    page.getByRole("status").filter({ hasText: "Simulated version conflict" }),
-  ).toBeVisible();
-  await expect(runButton(page)).toBeDisabled();
-  await scenario(page, "normal");
-  await button(page, "Approve mapping version").click();
-  await expect(runButton(page)).toBeEnabled();
-  await scenario(page, "conflict");
-  await runButton(page).click();
-  await expect(
-    page.getByRole("status").filter({ hasText: "No run was started" }),
-  ).toBeVisible();
-  await expect(button(page, "Advance simulated stage")).toHaveCount(0);
-  await scenario(page, "normal");
-  await button(page, "Approve mapping version").click();
-  await button(page, "Simulate source version change").click();
-  await expect(runButton(page)).toBeDisabled();
-  await go(page, "Source");
-  await expect(button(page, "Inspect source")).toBeEnabled();
-});
-
-test("interrupted and cancelled requests distinguish unknown, requested and acknowledged states", async ({
-  page,
-}) => {
-  await approvedWorkspace(page);
-  await runButton(page).click();
-  await button(page, "Simulate disconnection").click();
-  await expect(page.getByText(/^\s*[·✓!]\s*unknown\s*$/)).toBeVisible();
-  await button(page, "Reconnect").click();
-  await expect(
-    page.getByRole("status").filter({ hasText: "still status unknown" }),
-  ).toBeVisible();
-  await expect(button(page, "Advance simulated stage")).toHaveCount(0);
-  await runButton(page).click();
-  await button(page, "Request cancellation").click();
-  await expect(
-    page.getByText(/^\s*[·✓!]\s*cancel requested\s*$/),
-  ).toBeVisible();
-  await expect(runButton(page)).toBeDisabled();
-  await button(page, "Simulate cancellation acknowledgement").click();
-  await expect(page.getByText(/^\s*[·✓!]\s*cancelled\s*$/)).toBeVisible();
-  await expect(button(page, "Advance simulated stage")).toHaveCount(0);
-});
-
-test("partial output and system failure have different report and artifact consequences", async ({
-  page,
-}) => {
-  await approvedWorkspace(page);
-  await scenario(page, "partial");
-  await completeRun(page);
-  await go(page, "Review");
-  await expect(
-    page.getByRole("button", { name: /DEMO_PHONE_LENGTH/ }),
-  ).toBeVisible();
-  await go(page, "Export");
-  await expect(button(page, "Download simulated report")).toBeDisabled();
-  await expect(page.getByText(/^\s*[·✓!]\s*partial\s*$/)).toBeVisible();
-  await scenario(page, "system-failure");
-  await completeRun(page);
-  await go(page, "Review");
-  await expect(
-    page
-      .getByText("System failure prevented checks.", { exact: false })
-      .first(),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: /DEMO_PHONE_LENGTH/ }),
-  ).toHaveCount(0);
-  await go(page, "Export");
-  await expect(button(page, "Download simulated report")).toBeDisabled();
-});
-
-test("all five steps and real ZIP mode pass automated accessibility and narrow reflow checks", async ({
-  page,
-}, info) => {
-  await approvedWorkspace(page);
-  await completeRun(page);
-  const originalViewport = page.viewportSize()!;
+  await keyboardActivate(page, button(page, "Approve supplied mapping"));
+  await keyboardActivate(page, nav(page, "Run"));
+  await keyboardActivate(page, button(page, "Run JSON transformation"));
+  await expect(page.getByLabel("Returned JSON preview")).toBeVisible();
+  const original = page.viewportSize()!;
   for (const step of ["Source", "Mapping", "Run", "Review", "Export"]) {
-    await page.setViewportSize(originalViewport);
+    await page.setViewportSize(original);
     await go(page, step);
-    const result = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
-      .analyze();
-    expect(result.violations, `${step} accessibility violations`).toEqual([]);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+          .analyze()
+      ).violations,
+      step,
+    ).toEqual([]);
     await page.setViewportSize({ width: 320, height: 900 });
     expect(
       await page.evaluate(
@@ -371,13 +255,13 @@ test("all five steps and real ZIP mode pass automated accessibility and narrow r
           document.documentElement.scrollWidth <=
           document.documentElement.clientWidth,
       ),
-      `${step} body overflow at 320px`,
+      step,
     ).toBe(true);
   }
-  await page.setViewportSize(originalViewport);
+  await page.setViewportSize(original);
   await page.emulateMedia({ colorScheme: "dark" });
   await go(page, "Review");
-  await capture(page, info, "dark-review");
+  await capture(page, info, "dark-review-mocked-transport");
   expect(
     (
       await new AxeBuilder({ page })
@@ -385,28 +269,9 @@ test("all five steps and real ZIP mode pass automated accessibility and narrow r
         .analyze()
     ).violations,
   ).toEqual([]);
-  await page.setViewportSize({ width: 320, height: 900 });
-  await capture(page, info, "narrow-dark-review");
-  await page.route("**/health", (route) =>
-    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
-  );
-  await page
-    .getByRole("radio", { name: "Real ZIP integration", exact: true })
-    .check();
-  const real = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
-    .analyze();
-  expect(real.violations, "Real ZIP accessibility violations").toEqual([]);
-  expect(
-    await page.evaluate(
-      () =>
-        document.documentElement.scrollWidth <=
-        document.documentElement.clientWidth,
-    ),
-  ).toBe(true);
 });
 
-function syntheticZip(name = "source.csv") {
+function testZip(name = "source.csv") {
   const path = Buffer.from(name);
   const localSize = 30 + path.length + 1;
   const centralSize = 46 + path.length;
@@ -443,13 +308,11 @@ test("real ZIP transport is opt-in and malformed/unsafe sources never upload", a
     return route.fulfill({
       status: 201,
       contentType: "application/zip",
-      body: syntheticZip(),
+      body: testZip(),
     });
   });
   await page.goto("/");
-  await page
-    .getByRole("radio", { name: "Real ZIP integration", exact: true })
-    .check();
+  await page.getByRole("radio", { name: "ZIP upload", exact: true }).check();
   const input = page.getByLabel("Browse ZIP or drop it in this section");
   await input.setInputFiles({
     name: "malformed.zip",
@@ -463,16 +326,16 @@ test("real ZIP transport is opt-in and malformed/unsafe sources never upload", a
   await input.setInputFiles({
     name: "unsafe.zip",
     mimeType: "application/zip",
-    buffer: syntheticZip("../source.csv"),
+    buffer: testZip("../source.csv"),
   });
   await expect(
     page.getByRole("status").filter({ hasText: "Unsafe archive" }),
   ).toBeVisible();
   expect(posts).toBe(0);
   await input.setInputFiles({
-    name: "synthetic.zip",
+    name: "test.zip",
     mimeType: "application/zip",
-    buffer: syntheticZip(),
+    buffer: testZip(),
   });
   await expect(button(page, "Upload ZIP and transform")).toBeEnabled();
   expect(posts).toBe(0);
@@ -503,13 +366,11 @@ test("real ZIP disconnection and stopping the wait never acknowledge server canc
     return route.abort("failed");
   });
   await page.goto("/");
-  await page
-    .getByRole("radio", { name: "Real ZIP integration", exact: true })
-    .check();
+  await page.getByRole("radio", { name: "ZIP upload", exact: true }).check();
   await page.getByLabel("Browse ZIP or drop it in this section").setInputFiles({
-    name: "synthetic.zip",
+    name: "test.zip",
     mimeType: "application/zip",
-    buffer: syntheticZip(),
+    buffer: testZip(),
   });
   await button(page, "Upload ZIP and transform").click();
   const status = page.getByRole("status").filter({ hasText: /unknown:/ });
@@ -528,7 +389,7 @@ test("real ZIP disconnection and stopping the wait never acknowledge server canc
       .fulfill({
         status: 201,
         contentType: "application/zip",
-        body: syntheticZip(),
+        body: testZip(),
       })
       .catch(() => undefined);
   });
@@ -548,67 +409,108 @@ test("real ZIP disconnection and stopping the wait never acknowledge server canc
 });
 
 async function tabTo(page: Page, target: Locator) {
-  await expect(target).toBeAttached();
   for (let index = 0; index < 160; index++) {
     if (await target.evaluate((element) => element === document.activeElement))
       return;
     await page.keyboard.press("Tab");
   }
-  throw new Error(
-    "A core control was not reachable through the keyboard tab order.",
-  );
+  throw new Error("Core control is not keyboard reachable");
 }
 async function keyboardActivate(page: Page, target: Locator) {
   await tabTo(page, target);
   await page.keyboard.press("Enter");
 }
 
-test("keyboard-only core journey uses Tab, Enter and typed clarification through report download", async ({
+test("expired local artifacts preserve the received-response check and earlier output", async ({
   page,
 }) => {
-  await page.goto("/");
-  await keyboardActivate(page, button(page, "Load synthetic sample"));
-  await keyboardActivate(page, button(page, "Inspect source"));
-  await keyboardActivate(page, nav(page, "Mapping"));
+  await page.clock.install();
+  await mockSuccess(page);
+  await approved(page);
+  await button(page, "Run JSON transformation").click();
+  await expect(page.getByLabel("Returned JSON preview")).toBeVisible();
+  await go(page, "Source");
   await expect(
-    page.getByRole("heading", { name: "Review & approve", exact: true }),
-  ).toBeFocused();
-  await keyboardActivate(page, button(page, "Approve organization"));
-  await keyboardActivate(page, button(page, "Approve service"));
-  await tabTo(page, page.getByLabel("Clarification answer", { exact: true }));
-  await page.keyboard.type("Authored synthetic public service contact.");
-  await keyboardActivate(page, button(page, "Save clarification"));
-  await expect(button(page, "Approve mapping version")).toBeDisabled();
-  await keyboardActivate(page, button(page, "Approve phone"));
-  await keyboardActivate(page, button(page, "Revise locations"));
-  await expect(
-    mapping(page, "locations").getByLabel("Full target paths (one per line)"),
-  ).toBeFocused();
-  await keyboardActivate(
-    page,
-    mapping(page, "locations").getByRole("button", {
-      name: "Save mapping revision",
+    page.getByText("Selected in memory. Upload has not started.", {
       exact: true,
     }),
-  );
-  await expect(button(page, "Revise locations")).toBeFocused();
-  await keyboardActivate(page, button(page, "Approve locations"));
-  await keyboardActivate(page, button(page, "Approve mapping version"));
-  await keyboardActivate(page, runButton(page));
-  for (let index = 0; index < 4; index++)
-    await keyboardActivate(page, button(page, "Advance simulated stage"));
-  await keyboardActivate(page, nav(page, "Review"));
-  await keyboardActivate(
-    page,
-    page.getByRole("button", { name: /DEMO_PHONE_LENGTH/ }),
-  );
+  ).toHaveCount(0);
+  await go(page, "Mapping");
+  await button(page, "Reject supplied mapping").click();
+  await expect(page.getByRole("status")).toContainText("Earlier results");
+  await go(page, "Export");
+  await page.clock.fastForward(15 * 60 * 1000);
+  await expect(page.getByRole("status")).toContainText("expired");
   await expect(
-    page.getByRole("region", { name: "Selected diagnostic evidence" }),
-  ).toContainText("phone.number");
-  await keyboardActivate(page, nav(page, "Export"));
-  const downloadEvent = page.waitForEvent("download");
-  await keyboardActivate(page, button(page, "Download simulated report"));
-  expect((await downloadEvent).suggestedFilename()).toBe(
-    "demo-run-1-synthetic-report.json",
+    page.getByRole("link", { name: "Download transformed ZIP", exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByLabel("Check layers")).toContainText("HTTP 201 ZIP");
+  await expect(page.getByLabel("Returned JSON preview")).toContainText(
+    "Test Organization",
   );
+});
+
+test("unpreviewable output preserves the original ZIP and makes no validation claim", async ({
+  page,
+}) => {
+  await page.route("**/transform", (route) =>
+    route.fulfill({
+      status: 201,
+      contentType: "application/zip",
+      body: testZip("output.json"),
+    }),
+  );
+  await approved(page);
+  await button(page, "Run JSON transformation").click();
+  await expect(page.getByText(/Preview unavailable:/)).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Download transformed ZIP", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Check layers")).toContainText("not run");
+});
+
+test("generic JSON ZIP uses the explicit format and changing it invalidates inspection", async ({
+  page,
+}) => {
+  let posts = 0;
+  await page.route("**/health", (route) =>
+    route.fulfill({ status: 200, body: "{}" }),
+  );
+  await page.route("**/transform", (route) => {
+    posts++;
+    expect(route.request().postDataBuffer()?.toString()).toContain(
+      'name="input_format"\r\n\r\njson',
+    );
+    return route.fulfill({
+      status: 201,
+      contentType: "application/zip",
+      body: outputZip(),
+    });
+  });
+  await page.goto("/");
+  await page.getByRole("radio", { name: "ZIP upload", exact: true }).check();
+  const format = page.getByLabel("Archive input format");
+  await format.selectOption("json");
+  const input = page.getByLabel("Browse ZIP or drop it in this section");
+  await input.setInputFiles({
+    name: "repository-json.zip",
+    mimeType: "application/zip",
+    buffer: readFileSync("src/assets/repository-json/repository-json.zip"),
+  });
+  await expect(
+    page.getByText("Archive inventory (2 JSON files; names only)"),
+  ).toBeVisible();
+  await format.selectOption("csv");
+  await expect(button(page, "Upload ZIP and transform")).toBeDisabled();
+  await format.selectOption("json");
+  await input.setInputFiles({
+    name: "repository-json.zip",
+    mimeType: "application/zip",
+    buffer: readFileSync("src/assets/repository-json/repository-json.zip"),
+  });
+  await button(page, "Upload ZIP and transform").click();
+  await expect(
+    page.getByRole("link", { name: "Download transformed ZIP", exact: true }),
+  ).toBeVisible();
+  expect(posts).toBe(1);
 });

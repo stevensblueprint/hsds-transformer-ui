@@ -1,0 +1,2 @@
+# Keep pinned upstream source/mapping fixtures byte-for-byte identical.
+src/assets/repository-json/*.json

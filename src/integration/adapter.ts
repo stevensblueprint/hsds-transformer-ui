@@ -148,9 +148,11 @@ export async function checkHealth(signal: AbortSignal): Promise<boolean> {
 export async function transformZip(
   file: File,
   signal: AbortSignal,
+  inputFormat: "csv" | "json" = "csv",
 ): Promise<{ blob: Blob; logs: string | null }> {
   const data = new FormData();
   data.append("zip_file", file);
+  if (inputFormat === "json") data.append("input_format", "json");
   let response: Response;
   try {
     response = await fetch(`${API_URL}/transform`, {

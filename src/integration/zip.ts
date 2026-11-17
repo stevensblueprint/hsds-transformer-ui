@@ -10,10 +10,13 @@ export interface ZipInspection {
   expandedBytes: number;
 }
 
-export async function inspectZip(file: File): Promise<ZipInspection> {
+export async function inspectZip(
+  file: File,
+  inputFormat: "csv" | "json" = "csv",
+): Promise<ZipInspection> {
   if (!file.name.toLowerCase().endsWith(".zip"))
     throw new Error(
-      "Unsupported file. Choose a ZIP of source CSVs and mapping CSVs. Direct CSV/JSON intake is simulated only.",
+      "Unsupported file. Choose a ZIP containing source files and their matching mappings.",
     );
   if (file.size > ZIP_LIMITS.compressedBytes)
     throw new Error("Archive exceeds the provisional 10 MiB compressed limit.");
@@ -21,7 +24,7 @@ export async function inspectZip(file: File): Promise<ZipInspection> {
   const view = new DataView(bytes.buffer);
   const invalid = () =>
     new Error(
-      "Malformed or unsupported ZIP. Use a standard, single-volume ZIP containing CSV files.",
+      "Malformed or unsupported ZIP. Use a standard, single-volume ZIP containing source and mapping files.",
     );
   if (bytes.length < 22) throw invalid();
   let end = -1;
@@ -140,9 +143,9 @@ export async function inspectZip(file: File): Promise<ZipInspection> {
         "Archive expansion exceeds the provisional safety limit (50 MiB total or 100:1 ratio).",
       );
     if (!normalized.endsWith("/")) {
-      if (!normalized.toLowerCase().endsWith(".csv"))
+      if (!normalized.toLowerCase().endsWith(`.${inputFormat}`))
         throw new Error(
-          "Unsupported archive entry. This integration accepts source CSVs and mapping CSVs only.",
+          `Unsupported archive entry. Selected format requires .${inputFormat} source and mapping files only.`,
         );
       entries.push({ name, expandedBytes: expanded });
     }

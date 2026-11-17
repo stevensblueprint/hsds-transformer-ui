@@ -93,3 +93,12 @@ describe("ZIP metadata preflight", () => {
     );
   });
 });
+
+it("accepts JSON archive entries only when JSON input format is explicit", async () => {
+  await expect(inspectZip(archive("orgs.json"), "json")).resolves.toMatchObject(
+    { entries: [{ name: "orgs.json" }] },
+  );
+  await expect(inspectZip(archive("orgs.json"))).rejects.toThrow(
+    "Unsupported archive entry",
+  );
+});

@@ -1,0 +1,34 @@
+{
+  "id": "1",
+  "name": "Test Organization",
+  "description": "Clean Me",
+  "languages": [
+    {
+      "name": "en"
+    },
+    {
+      "name": "fr"
+    }
+  ],
+  "phones": [
+    {
+      "number": "555-0100",
+      "type": "Office"
+    },
+    {
+      "number": "555-0101",
+      "type": "Mobile"
+    }
+  ],
+  "attributes": [
+    {
+      "value": "HasWifi",
+      "label": "Feature1"
+    },
+    {
+      "value": "HasParking",
+      "label": "Feature2"
+    }
+  ],
+  "tags": ["tagA", "tagB"]
+}

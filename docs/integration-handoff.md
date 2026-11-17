@@ -1,46 +1,42 @@
-# Proposed BLU-42 integration handoff
+# BLU-42 integration handoff
 
-TypeScript shapes here are **frontend demo concepts, not agreed APIs**. [BLU-42](https://linear.app/stevensblueprint/issue/BLU-42) had no approved schemas/payloads attached when inspected. This task supplies shared UI/seams, not replacement mapping/validation engines.
+The current app uses the existing transformer HTTP interface. Workflow approvals, structured reports, corrections, durable jobs and history have **no agreed backend contract**. This work supplies shell/components/seams, not replacement mapping or validation engines. [BLU-42](https://linear.app/stevensblueprint/issue/BLU-42) decisions remain with the owning team.
 
-## Modules and ownership
+## Current application
 
-- `src/workflow/model.ts`: typed source/version, per-row decisions, approvals, diagnostics, run snapshots, check layers, reviewed patches/artifacts.
-- `reducer.ts`: pure memory transitions; no network/accounts/storage/models. Source/mapping/contract changes invalidate approval. Patches have their own version receipt. Runs freeze mappings/reports. Repeated actions deduplicate.
-- `fixtures.ts`: invented services, malformed phone, shared location, literal HTML/formula text, missing provenance and stable/unstable finding identities. Digit-length and rerun outcomes are authored demo rules, not schema/general mapping engines. Workstream/domain review of fixture expectations remains pending.
-- `screens.tsx` / `ui.tsx`: shared review/evidence/diff/check/artifact patterns. BLU-40 and BLU-41 retain domain/vertical-slice ownership.
-- `integration/adapter.ts` and `RealZipFlow`: real HTTP boundary mounted only after opt-in. MSW runs in tests only; synthetic UI performs no service/model calls.
+- `App.tsx`: input modes, header/help, shared shell. No synthetic workspace or scenario controls.
+- `RepositoryWorkspace.tsx`: upstream JSON source/mapping inspection, browser-only review, explicit real request and actual output preview/download. Review applies only to the fixed source/mapping bytes at the pinned revision. No saved or server-enforced approval is claimed; target HSDS profile remains unverified.
+- `integration/RealZipFlow.tsx`: generic CSV/JSON ZIP selection, metadata inspection, explicit transport and download.
+- `integration/adapter.ts`: multipart and error boundary, bounded untrusted errors/logs and output envelope. `integration/jsonOutput.ts`: bounded streaming JSON text preview, no disk extraction or HTML execution.
+- `workflow/` and remaining `screens.tsx`: earlier typed workflow concepts and reducer tests. They are unmounted and tree-shaken from the shipped app. Their fixture outcomes are not backend capabilities or active UI samples.
 
 ## Verified existing HTTP boundary
 
-Backend inspected at38fa7d0865f4bdfb63d9a366ec14c37f9626ee05, unchanged:
+Backend main source inspected at **6486294a7aac8fbce1bb4e021fe6e810c1f335df**:
 
-| Request         | Observed contract                                         | UI implication                                    |
-| --------------- | --------------------------------------------------------- | ------------------------------------------------- |
-| GET /health     | Health response                                           | Connection only, not run success                  |
-| POST /transform | Multipart zip_file, default CSV input;201 application/zip | Explicit upload, bounded transfer, local download |
+| Request         | Existing contract                                                      | UI behavior                                       |
+| --------------- | ---------------------------------------------------------------------- | ------------------------------------------------- |
+| GET /health     | Health response                                                        | Connection only; cannot reconcile prior requests  |
+| POST /transform | Multipart `zip_file`; default CSV or `input_format=json`; HTTP 201 ZIP | Explicit upload, bounded response, local download |
 
-No workflow/approval/history/report/job endpoints are called. `/transform/stream` is unused. Optional response logs are bounded untrusted text; CORS may prevent visibility. Missing run/version/contract/request-ID/provenance remains unavailable.
+The copied JSON/mapping fixture and actual output are recorded in [verification](verification.md). JSON support was already present in main; no backend changes were made. CSV requests retain the original field behavior (no extra format field). JSON requests add `input_format=json`. No workflow/approval/history/report/job endpoints or `/transform/stream` calls are invented.
 
-Provisional browser input bounds:10MiB compressed,50MiB advertised expanded total,100 entries,100:1 ratio. Reject unsafe paths/links/duplicates, malformed local/central metadata, encryption, ZIP64/multi-volume/non-UTF-8 variants and non-CSV entries without extracting source contents. Metadata preflight cannot replace server CRC/actual-expansion/content/path safety.
+Input metadata bounds: 10 MiB compressed, 50 MiB advertised expanded total, 100 entries, 100:1 ratio. Unsafe paths/links/duplicates, malformed headers, encryption, ZIP64/multi-volume/non-UTF-8 variants and wrong-format files are rejected. Preflight does not replace server CRC/actual-expansion/content validation.
 
-Returned artifacts have a100MiB streaming cap and ZIP-envelope checks, not full CRC/content/HSDS validation. Local links expire after15minutes or leaving real mode; server retention/expiry is unknown. HTTP400/413/415/422 are input failures; other HTTP failures are system/service failures. Timeout, disconnection or aborted transfer means **status unknown**, no automatic retry. At most3 explicit attempts per selection; health cannot reconcile prior work. Stopping the browser request is not server cancellation acknowledgement.
+Responses have a 100 MiB streaming cap and ZIP-envelope check, not full CRC/HSDS validation. JSON preview allows five files, at most 1 MiB expanded each, 12,000 displayed characters each. Unsupported/malformed/unsafe previews preserve the original downloadable ZIP with a warning. A separately verified local fixture ZIP passed CRC checks; the browser does not claim that check generally.
 
-## Concepts needing agreement
+HTTP 400/413/415/422 are input failures; other HTTP failures are system/service failures. Interrupted or stopped transfer means status unknown. There is no cancellation acknowledgement or reconciliation endpoint. At most three explicit attempts per selection; no automatic retry. Links expire locally after 15 minutes or input-mode change/reload; successful response history remains distinct from artifact availability. No persistent storage, source logging, model calls or account flows exist.
 
-| Concept    | Required owner decisions                                                                                                                     |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Source     | Identity/immutable version, format/limits/shape, bounded samples; tenant boundary, retention/deletion and parser safety                      |
-| Mapping    | Evidence, entity/full paths including one-to-many, supported transforms, unresolved/unsupported/intentionally unmapped; proposal vs approval |
-| Approval   | Source ID/version + mapping version + target-contract version; eventual server conflict/idempotency/authorization enforcement                |
-| Run        | Opaque/parent IDs, frozen approved inputs, observed stages/outcomes, source vs output counts; reconciliation/cancellation if supported       |
-| Diagnostic | Layer/code/severity/stage/rule/entity, file/row/field/target/evidence; absent values unavailable; stable unique identity for comparison      |
-| Correction | Before/after/reason/scope/version/base run/receipt; retain source/report, renew approval, fresh run; no inferred service facts               |
-| Artifact   | Identity/type/run/input/contract/check layers, permission/expiry/retrieval; invalid-output policy still open                                 |
+## Proposed concepts requiring agreement
 
-Only complete, comparable same-source/contract reports establish resolved findings. Failed/partial reports are inconclusive. Unknown or duplicate diagnostic identities never silently clear findings. The demo downloads only a labeled synthetic report; legacy ZIP output keeps its existing real download with validation limitations shown.
+| Concept    | Owner decisions needed                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------------------------ |
+| Source     | Immutable identity/version, format/limits, permission/tenant boundary, retention and parser safety           |
+| Mapping    | Evidence, entity/full paths, supported transforms, unresolved/unsupported/unmapped; proposal versus approval |
+| Approval   | Source/mapping/target-contract version binding; server conflict/idempotency/authorization enforcement        |
+| Run        | Opaque/parent IDs, frozen inputs, actual stages/outcomes; reconciliation/cancellation if supported           |
+| Diagnostic | Layer/code/severity/stage/rule/entity, source file/row/field/target/evidence, stable identity                |
+| Correction | Before/after/reason/scope/version/base run/receipt; retained reports, renewed approval, fresh run            |
+| Artifact   | Identity/run/input/contract/check context, expiry/retrieval, invalid-output policy                           |
 
-Open: HSDS release/profile BLU-13; corpus permission/expectations BLU-14/25; validator/report BLU-19/24/26; exact model/API schemas; retention/auth/isolation; idempotency/cancellation/retry; receiving interface and invalid-output policy. No real account flow exists; account-isolation assurance is unavailable, not passed.
-
-## Release and rollback
-
-No backend, infrastructure, auth/storage/model provider or deployment changes. `deploy.yml` is unchanged and still deploys main independently of checks. Do not merge to test deployment. Discarding this branch restores baseline; any eventual rollout needs separate release/rollback approval. Build CI performs deterministic frontend checks only, without production data/credentials.
+Open: HSDS release/profile BLU-13, corpus expectations BLU-14/25, validator/report BLU-19/24/26, model/API schemas, auth/isolation/retention, idempotency/retry/cancellation. No production readiness or account-isolation assurance is inferred. Reverting the followup commit restores the earlier synthetic UI; reverting the branch restores baseline. No backend, infrastructure, deployment, merge or release changes.

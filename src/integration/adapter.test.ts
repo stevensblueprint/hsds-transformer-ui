@@ -202,3 +202,16 @@ it("ignores completion if aborted during asynchronous ZIP envelope inspection", 
   release();
   await expect(request).rejects.toMatchObject({ kind: "unknown" });
 });
+
+it("sends JSON input_format with the existing ZIP multipart boundary", async () => {
+  const fetch = vi.fn().mockResolvedValue(
+    new Response(zipBytes(), {
+      status: 201,
+      headers: { "content-type": "application/zip" },
+    }),
+  );
+  vi.stubGlobal("fetch", fetch);
+  await transformZip(file(), signal(), "json");
+  expect(fetch.mock.calls[0][1].body.get("input_format")).toBe("json");
+  expect(fetch.mock.calls[0][1].body.get("zip_file").name).toBe("fixture.zip");
+});

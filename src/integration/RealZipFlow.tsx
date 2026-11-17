@@ -15,6 +15,7 @@ type Phase =
 
 /** Mount only after the user explicitly selects real ZIP integration. */
 export default function RealZipFlow() {
+  const [inputFormat, setInputFormat] = useState<"csv" | "json">("csv");
   const [file, setFile] = useState<File | null>(null);
   const [inspection, setInspection] = useState<ZipInspection | null>(null);
   const [phase, setPhase] = useState<Phase>("empty");
@@ -106,7 +107,7 @@ export default function RealZipFlow() {
     setAttempts(0);
     setCancelRequested(false);
     try {
-      const result = await inspectZip(selected);
+      const result = await inspectZip(selected, inputFormat);
       if (!mounted.current || id !== operation.current) return;
       setFile(selected);
       setInspection(result);
@@ -154,7 +155,7 @@ export default function RealZipFlow() {
       "Request in flight: uploading and transforming. The API does not expose separate stage progress.",
     );
     try {
-      const result = await transformZip(file, abort.signal);
+      const result = await transformZip(file, abort.signal, inputFormat);
       if (!mounted.current || id !== operation.current) return;
       if (abort.signal.aborted)
         throw new TransformError(
@@ -211,9 +212,8 @@ export default function RealZipFlow() {
           Configured backend: <code>{API_URL}</code>
         </p>
         <p>
-          Use synthetic or explicitly permitted files only. The richer mapping,
-          approval, reports and history are available in the simulated
-          workspace.
+          Use files you are permitted to process. Structured validation, saved
+          mapping approvals and history are not connected.
         </p>
         <p role="status">{health}</p>
         <button
@@ -236,12 +236,25 @@ export default function RealZipFlow() {
         }}
       >
         <h3>1. Choose and inspect locally</h3>
+        <label htmlFor="archive-format">Archive input format</label>
+        <select
+          id="archive-format"
+          value={inputFormat}
+          disabled={phase === "requesting"}
+          onChange={(event) => {
+            setInputFormat(event.target.value as "csv" | "json");
+            reset();
+          }}
+        >
+          <option value="csv">CSV source + CSV mappings</option>
+          <option value="json">JSON source + JSON mappings</option>
+        </select>
         <p id="zip-requirements">
-          ZIP containing source CSVs and mapping CSVs named
-          &lt;input_filename&gt;_&lt;object_type&gt;_mapping.csv. Provisional
-          browser limits: 10 MiB compressed, 50 MiB expanded, 100 entries, 100:1
-          expansion. No encrypted archives, links or unsafe paths. Server safety
-          checks remain required.
+          ZIP containing source files and matching mapping files named
+          &lt;input_filename&gt;_&lt;object_type&gt;_mapping.{inputFormat}.
+          Provisional browser limits: 10 MiB compressed, 50 MiB expanded, 100
+          entries, 100:1 expansion. No encrypted archives, links or unsafe
+          paths. Server safety checks remain required.
         </p>
         <label htmlFor="real-zip">Browse ZIP or drop it in this section</label>
         <input
@@ -262,8 +275,8 @@ export default function RealZipFlow() {
         {inspection && (
           <details>
             <summary>
-              Archive inventory ({inspection.entries.length} CSV files; names
-              only)
+              Archive inventory ({inspection.entries.length}{" "}
+              {inputFormat.toUpperCase()} files; names only)
             </summary>
             <ul>
               {inspection.entries.slice(0, 20).map((entry) => (
