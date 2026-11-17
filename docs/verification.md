@@ -1,6 +1,6 @@
 # Continuous transformation workspace verification
 
-Stack base: **PR #10, 25beaa34baf25a201f3e3e537f14b1ff56c663d6**, observed open/draft with its build check passed. Candidate branch: `feat/transformation-interactions`; the stacked draft PR records the exact final pushed/tested commit. Parent PR is unchanged. [Previous repository-JSON evidence](verification-repository-json.md) is historical; current behavior is described here.
+Stack base: **PR #10, 25beaa34baf25a201f3e3e537f14b1ff56c663d6**, observed open/draft with its build check passed. Candidate branch: `feat/transformation-interactions`; the stacked draft PR records the exact final pushed/tested commit. Parent PR is unchanged. Build CI now accepts pull requests to non-main bases so this stack receives the same checks; main push behavior and deployment workflow are unchanged. [Previous repository-JSON evidence](verification-repository-json.md) is historical; current behavior is described here.
 
 Luke requested removing numbered workflow pages and the separate ZIP mode, while completing transformation interactions. Current UI has one intake for CSV/JSON source+mapping or ZIP, contextual inspection/review/run/output, real manual edits/corrections, version-bound browser review, retained actual outputs, bounded comparison and export. No synthetic scenario flow, invented engine/model/diagnostics, backend edits, merge or deployment.
 

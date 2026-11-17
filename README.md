@@ -71,4 +71,4 @@ node scripts/verify-local-transform.mjs
 
 That script refuses a non-local configured transformer and records actual returned JSON/screenshots under `docs/evidence/interactions/`. See [current verification](docs/verification.md), [Figma design record](docs/design-source.md) and [BLU-42 handoff](docs/integration-handoff.md).
 
-Draft PR stacked on #10; no merge or deployment authorized. `deploy.yml` remains unchanged and can deploy main independently of build checks.
+Build checks run for all pull-request bases, including stacked PRs. Draft PR stacked on #10; no merge or deployment authorized. `deploy.yml` remains unchanged and can deploy main independently of build checks.
